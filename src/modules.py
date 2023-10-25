@@ -85,4 +85,5 @@ def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="x", cente
         residue_totals.append(outer_total)
         residue_totals.append(inner_total)
         overall_totals.append(residue_totals)
-    print(overall_totals)
+        print(overall_totals)
+    # print(overall_totals)
