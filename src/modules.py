@@ -1,3 +1,4 @@
+import numpy as np
 import MDAnalysis as mda
 
 def non_water_COG(universe):
@@ -36,19 +37,52 @@ def first_and_last_atoms(universe, list_of_residues):
         residue_atom_dict[residue] = residue_first_last_atoms
     return(residue_atom_dict)
 
-def lipids_per_tubule_leaflet(universe, residue_atom_dict, axis="x", center=False):
+def distance_between_points(point1, point2):
+    # assert statements
+    return (np.sqrt(((point1[1]-point1[0])**2) + ((point2[1] - point2[0])**2)))
+
+def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="x", center=False):
+    if residue_atom_dict == False:
+        residue_atom_dict = first_and_last_atoms(universe, residue_names(universe))
+    
     if center == False:
         center = non_water_COG(universe)
- 
+
     # assert universe is mda object containing one ts?
-    assert isinstance(center, list) and len(center) == 3 and all(isinstance(x, float) for x in center), "center is not a list containing three floats"
+    # assert isinstance(center, list) and len(center) == 3, "center is not a list containing three floats"
     assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
     assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
 
     if axis == "x":
-        dim1, dim2 = center[1], center[2]
+        tubule_center = [center[1], center[2]]
+        dims = [1,2]
     elif axis == "y":
-        dim1, dim2 = center[0], center[2]
+        tubule_center = [center[0], center[2]]
+        dims = [0,2]
     elif axis == "z":
-        dim1, dim2 = center[0], center[1]
+        tubule_center = [center[0], center[1]]
+        dims = [0,1]
     
+    overall_totals = []
+
+    for resname in residue_atom_dict:
+        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0]}')
+        tails = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][1]}')
+
+        outer_total = 0
+        inner_total = 0
+        residue_totals = []
+        for i in range(len(heads)):
+            head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
+            tail_coords = [tails.positions[i][dims[0]], tails.positions[i][dims[1]]]
+            head_dist = (distance_between_points(head_coords, tubule_center))
+            tail_dist = (distance_between_points(tail_coords, tubule_center))
+            if head_dist > tail_dist:
+                outer_total += 1
+            else:
+                inner_total += 1
+        print(resname, outer_total, inner_total)
+        residue_totals.append(outer_total)
+        residue_totals.append(inner_total)
+        overall_totals.append(residue_totals)
+    print(overall_totals)
