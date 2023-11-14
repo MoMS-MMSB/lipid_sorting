@@ -7,13 +7,11 @@ def non_water_COG(universe):
     """
     return(universe.select_atoms("not resname W NA CA CL").center_of_geometry(compound="group"))
 
-u = mda.Universe("./test_systems/ER8_r10.gro")
 
 def residue_names(universe):
     """
     return a list of all residue names.
     """
-    print(universe)
     residue_names = []
     for atom in universe.atoms:
         if atom.resname not in residue_names:
@@ -41,9 +39,9 @@ def distance_between_points(point1, point2):
     # assert statements
     return (np.sqrt(((point1[1]-point1[0])**2) + ((point2[1] - point2[0])**2)))
 
-def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="x", center=False):
+def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="z", center=False):
     if residue_atom_dict == False:
-        residue_atom_dict = first_and_last_atoms(universe, residue_names(universe))
+        residue_atom_dict = first_and_last_atoms(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
     
     if center == False:
         center = non_water_COG(universe)
@@ -85,5 +83,4 @@ def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="x", cente
         residue_totals.append(outer_total)
         residue_totals.append(inner_total)
         overall_totals.append(residue_totals)
-        print(overall_totals)
-    # print(overall_totals)
+    print(overall_totals)
