@@ -1,5 +1,9 @@
 import numpy as np
+import pandas as pd
+from tqdm import tqdm
 import MDAnalysis as mda
+from tqdm.notebook import tqdm
+import matplotlib.pyplot as plt
 
 def non_water_COG(universe):
     """
@@ -69,7 +73,6 @@ def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="z", cente
 
         outer_total = 0
         inner_total = 0
-        residue_totals = []
         for i in range(len(heads)):
             head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
             tail_coords = [tails.positions[i][dims[0]], tails.positions[i][dims[1]]]
@@ -79,8 +82,68 @@ def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="z", cente
                 outer_total += 1
             else:
                 inner_total += 1
-        print(resname, outer_total, inner_total)
-        residue_totals.append(outer_total)
-        residue_totals.append(inner_total)
-        overall_totals.append(residue_totals)
-    print(overall_totals)
+        overall_totals.append(outer_total)
+        overall_totals.append(inner_total)
+    return(overall_totals)
+
+def results_to_df(array, resnames):
+    headers = []
+    for resname in resnames: 
+        headers.append(resname + " Outer"), headers.append(resname + " Inner")
+
+    df = pd.DataFrame(array,columns=headers)
+    df.index += 1
+    return(df)
+
+def df_to_plot(df, resnames, rolling=1, title=False, colours=False):
+
+    for resname in resnames:
+        if colours:
+            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), color=colours[resname], linestyle="--")
+            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), color=colours[resname], linestyle="-.")
+        else:
+            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), linestyle="--")
+            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), linestyle="-.")
+    
+    plt.legend()
+    plt.ylabel("# Lipids")
+    plt.xlabel("Frame")
+    if title:
+        plt.title(title)
+
+    return(plt)
+
+def process_trajectory_jupyter(trajectory, rolling=1, title=False, colours=False, skip=1):
+    resnames = residue_names(trajectory.select_atoms("not resname W"))
+
+    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
+    trajectory_output = []
+
+    with tqdm(total=len(trajectory.trajectory[::skip])) as pbar:
+        for ts in trajectory.trajectory[::skip]:
+            trajectory_output.append(lipids_per_tubule_leaflet(sel))
+            pbar.update(1)
+    
+    df = results_to_df(trajectory_output, resnames)
+
+    df_to_plot(df, resnames, rolling, title, colours)
+
+    plt.show()
+
+def process_trajectory(trajectory, colours=False, skip=1):
+    resnames = residue_names(trajectory.select_atoms("not resname W"))
+
+    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
+    trajectory_output = []
+
+    for ts in tqdm(trajectory.trajectory[::skip]):
+        trajectory_output.append(lipids_per_tubule_leaflet(sel))
+    
+    df = results_to_df(trajectory_output, resnames)
+
+    if colours:
+        df_to_plot(df, resnames, colours)
+    else:
+        df_to_plot(df, resnames)
+
+    plt.show()
