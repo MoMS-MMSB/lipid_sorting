@@ -42,13 +42,13 @@ mol modmaterial 2 0 Smooth
 
 
 display dof_focaldist 1.000000
-render TachyonLOptiXInternal top.bmp -res 4000 4000 -format bmp
+render TachyonLOptiXInternal top.bmp -res 1000 1000 -format bmp
 
 rotate x by 90.000000
 rotate y by 90.000000
-render TachyonLOptiXInternal rotated.bmp -res 4000 4000 -format bmp
+render TachyonLOptiXInternal rotated.bmp -res 1000 1000 -format bmp
 
 rotate x by 30.000000
-render TachyonLOptiXInternal tilted.bmp -res 4000 4000 -format bmp
+render TachyonLOptiXInternal tilted.bmp -res 1000 1000 -format bmp
 
 quit
