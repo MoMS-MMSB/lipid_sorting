@@ -27,7 +27,10 @@ POPC_POPE_20 = mda.Universe(root + "POPC_POPE/r20/production/noW.gro",
 POPC_POPE_30 = mda.Universe(root + "POPC_POPE/r30/production/noW.gro", 
                  root + "POPC_POPE/r30/production/noW.xtc")
 
-systems = [DOPC_POPC_10, DOPC_POPC_20, DOPC_POPC_30, POPC_POPE_10, POPC_POPE_20, POPC_POPE_30]
+# systems = [DOPC_POPC_10, DOPC_POPC_20, DOPC_POPC_30, POPC_POPE_10, POPC_POPE_20, POPC_POPE_30]
+
+systems = [DOPC_POPC_30, POPC_POPE_10, POPC_POPE_20, POPC_POPE_30]
+
 
 system_outputs = {DOPC_POPC_10 : "DOPC_POPC_10.csv",
                    DOPC_POPC_20 : "DOPC_POPC_20.csv",
@@ -41,7 +44,7 @@ colours = {"DOPC" : "red", "POPC":"blue", "POPE":"orange"}
 for system in systems:
     print('\n\nProcessing: ' + system_outputs[system].split(".")[0] + "\n...")
     start = time.time()
-    modules.process_trajectory(system, skip=10, output=(output + system_outputs[system]))
+    modules.process_trajectory(system, skip=1, output=(output + system_outputs[system]))
     end = time.time()
     print("Results saved in " + system_outputs[system])
     hours, rem = divmod(end-start, 3600)
