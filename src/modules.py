@@ -99,11 +99,11 @@ def df_to_plot(df, resnames, rolling=1, title=False, colours=False):
 
     for resname in resnames:
         if colours:
-            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), color=colours[resname], linestyle="--")
-            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), color=colours[resname], linestyle="-.")
+            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), color=colours[resname], linestyle="--", label= resname + " Outer")
+            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), color=colours[resname], linestyle="-.", label= resname + " Inner")
         else:
-            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), linestyle="--")
-            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), linestyle="-.")
+            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), linestyle="--", label= resname + " Outer")
+            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), linestyle="-.", label= resname + " Inner")
     
     plt.legend()
     plt.ylabel("# Lipids")
@@ -113,7 +113,25 @@ def df_to_plot(df, resnames, rolling=1, title=False, colours=False):
 
     return(plt)
 
-def process_trajectory_jupyter(trajectory, rolling=1, title=False, colours=False, skip=1):
+def trajectory_to_plot(trajectory, colours=False, skip=1):
+    resnames = residue_names(trajectory.select_atoms("not resname W"))
+
+    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
+    trajectory_output = []
+
+    for ts in tqdm(trajectory.trajectory[::skip]):
+        trajectory_output.append(lipids_per_tubule_leaflet(sel))
+    
+    df = results_to_df(trajectory_output, resnames)
+
+    if colours:
+        df_to_plot(df, resnames, colours)
+    else:
+        df_to_plot(df, resnames)
+
+    plt.show()
+
+def trajectory_to_plot_jupyter(trajectory, rolling=1, title=False, colours=False, skip=1):
     resnames = residue_names(trajectory.select_atoms("not resname W"))
 
     sel = trajectory.atoms.select_atoms("not resname W", updating = True)
@@ -130,20 +148,20 @@ def process_trajectory_jupyter(trajectory, rolling=1, title=False, colours=False
 
     plt.show()
 
-def process_trajectory(trajectory, colours=False, skip=1):
+def process_trajectory(trajectory, skip=1, output="dataframe.csv"):
     resnames = residue_names(trajectory.select_atoms("not resname W"))
 
     sel = trajectory.atoms.select_atoms("not resname W", updating = True)
     trajectory_output = []
 
-    for ts in tqdm(trajectory.trajectory[::skip]):
+    for ts in trajectory.trajectory[::skip]:
         trajectory_output.append(lipids_per_tubule_leaflet(sel))
     
     df = results_to_df(trajectory_output, resnames)
+    df.to_csv(output)
 
-    if colours:
-        df_to_plot(df, resnames, colours)
-    else:
-        df_to_plot(df, resnames)
+def csv_to_plot(csv, resnames, rolling=1, title=False, colours=False):
+    df = pd.read_csv(csv)
+    df_to_plot(df, resnames, rolling, title, colours)
 
     plt.show()
