@@ -95,7 +95,7 @@ def results_to_df(array, resnames):
     df.index += 1
     return(df)
 
-def df_to_plot(df, resnames, rolling=1, title=False, colours=False):
+def df_to_plot(df, resnames, rolling=1, title=False, colours=False, x_label="Frame"):
 
     for resname in resnames:
         if colours:
@@ -107,7 +107,7 @@ def df_to_plot(df, resnames, rolling=1, title=False, colours=False):
     
     plt.legend()
     plt.ylabel("# Lipids")
-    plt.xlabel("Frame")
+    plt.xlabel(x_label)
     if title:
         plt.title(title)
 
@@ -160,8 +160,14 @@ def process_trajectory(trajectory, skip=1, output="dataframe.csv"):
     df = results_to_df(trajectory_output, resnames)
     df.to_csv(output)
 
-def csv_to_plot(csv, resnames, rolling=1, title=False, colours=False):
+def csv_to_plot(csv, resnames, rolling=1, title=False, colours=False, index_scaling=1, x_label="Frame", out=False):
     df = pd.read_csv(csv)
-    df_to_plot(df, resnames, rolling, title, colours)
 
+    # scaling factor to return the index as, for insatnce, nanoseconds/microseconds
+    df[df.columns[0]] = df[df.columns[0]]/index_scaling
+    df = df.set_index(df.columns[0])
+    df_to_plot(df, resnames, rolling, title, colours, x_label)
+
+    if out:
+        plt.savefig(out)
     plt.show()
