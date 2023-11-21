@@ -18,9 +18,11 @@ example_results contain the results for the figures used in the publication. Lik
 # What if I want to run my own?
 The following protocol will allow you to generate *your own* tubules from scratch - all you know is your desired composition, and nothing else.
 
+If you end up using this tutorial, you should cite our book chapter (coming soon) and also TS2CG, the paper for which is found [here](https://rdcu.be/drEQr): 
+
 You will need: 
 - Access to a terminal
-- This repository; run ```git clone https://github.com/MoMS-MMSB/lipid_sorting.git``` in a terminal
+- This repository; run ```git clone --recurse-submodules https://github.com/MoMS-MMSB/lipid_sorting.git``` in a terminal. We call recurse-submodules as this project uses another repository we developed based on [TS2CG](https://github.com/marrink-lab/TS2CG1.1) to help with the initial tubule setup.
 - A conda environment for this repository. This gives you access to the in-house scripts generated for setup and analysis, and all their required python package dependencies. Notably, this includes Nextflow, the software used to run the workflow for initial structure generation. This is done by running ```conda env create --name lipid-sorting --file=environments.yml```
 - A working GROMACS install. This entire process was developed using GROMACS/2023.1, the installation instructions for which can be found [here](https://manual.gromacs.org/documentation/2023.1/install-guide/index.html)
 
@@ -44,3 +46,12 @@ Thickness 2
 Radius 10
 End
 ```
+
+
+```
+nextflow run ../TS2CG_Setup_Pipeline/main.nf --input ${input} --outDir ${pwd}/out
+```
+
+Based on your system and computer, the time taken can vary. The benefit of nextflow is that if any one step returns an error, it will at which steo the error occurred, and can even be resumed from the prior step by adding ```--resume``` to the command line call once the errors have been resolved.
+
+After the workflow has run, files named "workflow_out.gro" and "workflow_out.top" will be generated.
