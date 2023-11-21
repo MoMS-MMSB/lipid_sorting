@@ -1,6 +1,8 @@
+README.md
 setup.py
 src/__init__.py
-src/modules.py
+src/analysis_modules.py
+src/workflow_modules.py
 src.egg-info/PKG-INFO
 src.egg-info/SOURCES.txt
 src.egg-info/dependency_links.txt

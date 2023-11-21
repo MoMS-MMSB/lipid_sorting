@@ -1,0 +1,3 @@
+[submodule "TS2CG-Setup-Pipeline"]
+	path = TS2CG-Setup-Pipeline
+	url = https://github.com/jacksoncrowley/TS2CG-Setup-Pipeline
