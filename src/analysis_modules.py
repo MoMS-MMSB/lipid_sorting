@@ -109,7 +109,7 @@ def df_to_plot(df, resnames, rolling=1, title=False, colours=False, x_label="Fra
     plt.ylabel("# Lipids")
     plt.xlabel(x_label)
     if title:
-        plt.title(title)
+        plt.title(title,fontsize=40)
 
     return(plt)
 
