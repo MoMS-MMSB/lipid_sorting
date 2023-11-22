@@ -40,18 +40,23 @@ def first_and_last_atoms(universe, list_of_residues):
     return(residue_atom_dict)
 
 def distance_between_points(point1, point2):
-    # assert statements
+    """Calculate the distance between two two-dimensional points"""
+    assert (type(point1) == list) and (len(point1) == 2)
+    assert (type(point2) == list) and (len(point2) == 2)
     return (np.sqrt(((point1[1]-point1[0])**2) + ((point2[1] - point2[0])**2)))
 
-def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="z", center=False):
+def lipids_per_tubule_leaflet(universe, axis="z", residue_atom_dict=False, center=False):
+    """
+    From an MDAnalysis universe and a dictionary containing residue names with their first and 
+    last atoms, assign each residue (i.e. lipid) to either the inner or outer tubule leaflet,
+    where the tubule is periodic in the dimension specified by variable 'axis'
+    """
     if residue_atom_dict == False:
         residue_atom_dict = first_and_last_atoms(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
     
     if center == False:
         center = non_water_COG(universe)
 
-    # assert universe is mda object containing one ts?
-    # assert isinstance(center, list) and len(center) == 3, "center is not a list containing three floats"
     assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
     assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
 
@@ -87,6 +92,10 @@ def lipids_per_tubule_leaflet(universe, residue_atom_dict=False, axis="z", cente
     return(overall_totals)
 
 def results_to_df(array, resnames):
+    """
+    Take an array and list of resnames. For each resname, make a column for both Outer and Inner
+    Leaflets. The array should match this dimensionality. Return a pandas dataFrame.
+    """
     headers = []
     for resname in resnames: 
         headers.append(resname + " Outer"), headers.append(resname + " Inner")
@@ -95,8 +104,29 @@ def results_to_df(array, resnames):
     df.index += 1
     return(df)
 
-def df_to_plot(df, resnames, rolling=1, title=False, colours=False, x_label="Frame"):
 
+def process_trajectory(trajectory, skip=1, output="dataframe.csv", axis = "z"):
+    """
+    Perform inner/outer tubule analysis on entire trajectory, given here
+    as MDAnalysis universe. Saves as a csv named by variable 'output'
+    """
+    resnames = residue_names(trajectory.select_atoms("not resname W"))
+
+    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
+    trajectory_output = []
+
+    for ts in trajectory.trajectory[::skip]:
+        trajectory_output.append(lipids_per_tubule_leaflet(sel, axis))
+    
+    df = results_to_df(trajectory_output, resnames)
+    df.to_csv(output)
+
+
+def df_to_plot(df, resnames, rolling=1, title=False, colours=False, x_label="Frame"):
+    """
+    Plot a dataframe, with lipids taking their colours from a dictionary.
+    Rolling average can be applied with input variable rolling.
+    """
     for resname in resnames:
         if colours:
             plt.plot(df[resname + " Outer"].rolling(rolling).mean(), color=colours[resname], linestyle="--", label= resname + " Outer")
@@ -113,14 +143,18 @@ def df_to_plot(df, resnames, rolling=1, title=False, colours=False, x_label="Fra
 
     return(plt)
 
-def trajectory_to_plot(trajectory, colours=False, skip=1):
+def trajectory_to_plot(trajectory, axis="z", colours=False, skip=1):
+    """
+    Perform several of the above steps all in one, all from a single trajectory.
+    Not recommended for huge trajectories, as the files are not saved.
+    """
     resnames = residue_names(trajectory.select_atoms("not resname W"))
 
     sel = trajectory.atoms.select_atoms("not resname W", updating = True)
     trajectory_output = []
 
     for ts in tqdm(trajectory.trajectory[::skip]):
-        trajectory_output.append(lipids_per_tubule_leaflet(sel))
+        trajectory_output.append(lipids_per_tubule_leaflet(sel, axis))
     
     df = results_to_df(trajectory_output, resnames)
 
@@ -132,6 +166,11 @@ def trajectory_to_plot(trajectory, colours=False, skip=1):
     plt.show()
 
 def trajectory_to_plot_jupyter(trajectory, rolling=1, title=False, colours=False, skip=1):
+    """
+    Does the same as above, but in jupyter.
+    Not recommended for huge trajectories, as the files are not saved.
+    """
+
     resnames = residue_names(trajectory.select_atoms("not resname W"))
 
     sel = trajectory.atoms.select_atoms("not resname W", updating = True)
@@ -148,22 +187,13 @@ def trajectory_to_plot_jupyter(trajectory, rolling=1, title=False, colours=False
 
     plt.show()
 
-def process_trajectory(trajectory, skip=1, output="dataframe.csv"):
-    resnames = residue_names(trajectory.select_atoms("not resname W"))
-
-    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
-    trajectory_output = []
-
-    for ts in trajectory.trajectory[::skip]:
-        trajectory_output.append(lipids_per_tubule_leaflet(sel))
-    
-    df = results_to_df(trajectory_output, resnames)
-    df.to_csv(output)
 
 def csv_to_plot(csv, resnames, rolling=1, title=False, colours=False, index_scaling=1, x_label="Frame", out=False):
+    """
+    Given a csv file and list of resnames, create dataframes and plots in accordance with
+    earlier function df_to_plot()
+    """
     df = pd.read_csv(csv)
-
-    # scaling factor to return the index as, for insatnce, nanoseconds/microseconds
     df[df.columns[0]] = df[df.columns[0]]/index_scaling
     df = df.set_index(df.columns[0])
     df_to_plot(df, resnames, rolling, title, colours, x_label)

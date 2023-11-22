@@ -3,19 +3,26 @@
 ## Introduction
 Coming soon! Once this gets published, I can write more here :)
 
-## Method
-The pipeline to set up tubules is based on TS2CG. It will soon be added, in some form, into this directory.
+## What is in this Repository?
+The pipeline to set up tubules is based on TS2CG. Contained in this repository
+is a fork of a setup pipeline which can be used to generate tubules of desired size and 
+composition.
 
-Also, this directory will eventually feature the script to generate pores and restraints files, followed by an example workflow. Automating this entire process can be tricky, as longer systems will likely require use of clusters or supercomputing resources, but expect example workflows once all the pieces are in one place.
+Contained in the folder src/ is a modules file in python called pore_modules.py.
+In here, you can find all the required functions to create a pore, update the GROMACS topology, and generate a .gro file for position restraints. Following creation of this file, the .itp file itself will need to be modified - for now, examples are provided; expect some further explanations in future updates. Unfortunately, modification of the .itp file for the pore restraints is the most "hands-on" step, and is highly system specific.
 
-Contained here are a series of python functions used for the analysis of the resulting production runs for this system. These modules can be found in /src/modules.py.
+An example of this is found in the script **SCRIPT**
 
-process_trajectory.py is the example script used to run the analysis on one or several systems. Depending on the size of the system, this can take a few hours. It is recommended to remove water from the .gro and trajectory files.
+Following generation of all of these files, you will be ready to run a production run. Depending on the system size, these can take considerable amounts of time to run, especially locally. Use of dedicated computing resources such as a cluster or supercomputer are desireable, however if they are inaccessible, consider sticking to smaller systems and shorter simulations. 
+
+Once the production run has completed, you will need to run the analysis. Again, this can take considerable amounts of time - **for now, it runs on a single core; expect multiprocessing shortly**. The resulting files will be saved as a .csv, after which you can visualise these. All relevant modules can be found in /src/analysis_modules.py.
+
+process_trajectory.py is the example script used to run the analysis on one or several systems; here, showing the exact commands used to process the systems from the publication. Again, depending on the size of the systems, this can take a few hours. It is recommended to remove water from the .gro and trajectory files.
 
 ## Files
 example_results contain the results for the figures used in the publication. Likewise, Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd. 
 
-# What if I want to run my own?
+## What if I want to run my own?
 The following protocol will allow you to generate *your own* tubules from scratch - all you know is your desired composition, and nothing else.
 
 If you end up using this tutorial, you should cite our book chapter (coming soon) and also TS2CG, the paper for which is found [here](https://rdcu.be/drEQr): 
@@ -55,3 +62,5 @@ nextflow run ../TS2CG_Setup_Pipeline/main.nf --input ${input} --outDir ${pwd}/ou
 Based on your system and computer, the time taken can vary. The benefit of nextflow is that if any one step returns an error, it will at which steo the error occurred, and can even be resumed from the prior step by adding ```--resume``` to the command line call once the errors have been resolved.
 
 After the workflow has run, files named "workflow_out.gro" and "workflow_out.top" will be generated.
+
+# **TUTORIAL TO BE CONTINUED**

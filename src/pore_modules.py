@@ -1,6 +1,7 @@
 ### Creation of Pore:
-
+######################################################################################
 def boxVectors(gro):
+    """Return dimensions of box as list of strings and list of floats"""
     with open(gro) as f:
         for line in f:
             pass
@@ -11,13 +12,14 @@ def boxVectors(gro):
     return(vectors_str, vectors_float)
 
 def parseGroLine(line):
-    atomName = line[0:5]
+    """Parse a gro line, returning variables according to fixed file format columns"""
+    atomNum = line[0:5]
     atomType = line[5:10]
     resid = line[0:10]
     x = float(line[20:28])
     y = float(line[28:36])
     z = float(line[36:44])
-    return(atomName, atomType, resid, x, y, z)
+    return(atomNum, atomType, resid, x, y, z)
 
 def isWithinCircle(dimA, dimB, centerA, centerB, boxA, boxB, radius=2):
     """Function determining whether a given point (dimA,dimB) lies within a circle with center (centerA, centerB) with radius."""
@@ -44,7 +46,7 @@ def residuesInPore(input_gro, axis, pore_centerA, pore_centerB, radius, moltypes
     with open(input_gro) as f:
         lines = f.readlines()[2:-1]
         for line in lines:
-            atomName, atomType, resid, x, y, z = parseGroLine(line)
+            atomNum, atomType, resid, x, y, z = parseGroLine(line)
             # axis definitions
             if axis == "x":
                 dimA, dimB = y, z
@@ -61,7 +63,8 @@ def residuesInPore(input_gro, axis, pore_centerA, pore_centerB, radius, moltypes
                     residues_in_pore.append(resid.strip())
     return(residues_in_pore)
 
-def deleteResiduesInPore(input_gro, output_gro, residues_in_pore):
+def deleteResiduesInList(input_gro, output_gro, residues_to_delete):
+    """Delete atoms from input gro file that are within the list defined by residues_to_delete"""
     new_lines = []
     with open(input_gro) as f:
         lines = f.readlines()[:2]
@@ -71,7 +74,7 @@ def deleteResiduesInPore(input_gro, output_gro, residues_in_pore):
         lines = f.readlines()[2:-1]
         for line in lines:
             resid = parseGroLine(line)[2]
-            if resid.strip() not in residues_in_pore:
+            if resid.strip() not in residues_to_delete:
                 new_lines.append(line)
     with open(input_gro) as f:
         new_lines.append(f.readlines()[-1])
@@ -80,7 +83,7 @@ def deleteResiduesInPore(input_gro, output_gro, residues_in_pore):
             w.write(line)
 
 def update_gro_particles(gro_file):
-    # change second line with file length -3
+    """Take a given .gro file and edit the second line to correctly reflect the number of atoms in the system"""
     with open(gro_file) as f:
         lines = f.readlines()
         lines[1] = str(len(lines)-3) + "\n"
@@ -90,6 +93,13 @@ def update_gro_particles(gro_file):
             w.write(line)
 
 def create_pore(input_gro, output_gro, axis, radius, moltypes, centerXYZ=False):
+    """
+    Within a given input gro file, define a pore based on axis, pore center given as
+    a list containing coordinates for x, y, z, and a list of molecules in moltypes to
+    remove from the pore region.
+    Coordinates are based on the axis; while all three must be provided, the two coordinates
+    other than the axis specified are used for calculation of the pore.
+    """
     assert (type(centerXYZ) == list) or (centerXYZ is False)
     assert type(moltypes) == list
     assert (axis == "x") or (axis == "y") or (axis =="z")
@@ -106,12 +116,12 @@ def create_pore(input_gro, output_gro, axis, radius, moltypes, centerXYZ=False):
         pore_centerA, pore_centerB = centerXYZ[0], centerXYZ[1]
     
     residues_in_pore = residuesInPore(input_gro, axis, pore_centerA, pore_centerB, radius, moltypes)
-    deleteResiduesInPore(input_gro, output_gro, residues_in_pore)
+    deleteResiduesInList(input_gro, output_gro, residues_in_pore)
     update_gro_particles(output_gro)
 
 
 ### Rewriting Topology:
-
+######################################################################################
 def mol_list(gro):
     """Return a list of all molecules types in a given gro file."""
     mol_list = []
@@ -167,16 +177,33 @@ def rewrite_top(input_top, mol_counts, output_top):
     for entry in mol_counts:
         writer.write("%-10s%6d" % (entry[0], int(entry[1])) + "\n")
 
-### Generating Restraints
+### Generating Restraints file:
+######################################################################################
+def generate_restraints(input_gro, mol_types, restraints_gro="restraints.gro", restraintsXYZ=False):
+    """
+    Take an input gro, a list of molecules to be restrained, 
+    and a given set of coordinates at which to restrain chosen molecules.
+    If coordinates are not specified, they will default to half of the respective
+    box coordinates, to stay in line with other programs in this module.
+    """
+    assert type(mol_types) == list
 
+    if restraintsXYZ == False:
+        restraintsXYZ = [(vector/2) for vector in boxVectors(input_gro)[1]]
 
-
-
-## test zone
-input_test = "/data1/jackson/MD/Membrane_Systems/Tubules/DOPC_POPC/r10/eq_nopore/eq.1.part0001.gro"
-output_test="/data1/jackson/MD/Membrane_Systems/Tubules/DOPC_POPC/r10/pore_python_test.gro"
-
-# create_pore(input_test, output_test,"x", 2, ["DOPC", "POPC"])
-input_top_test = "/data1/jackson/MD/Membrane_Systems/Tubules/DOPC_POPC/r10/TS2CG/topol.top"
-output_top_test="/data1/jackson/MD/Membrane_Systems/Tubules/DOPC_POPC/r10/pore_python_test.top"
-rewrite_top(input_top_test, num_unique_molecules(input_test, mol_list(input_test)), output_top_test)
+    line_num = 0
+    with open(restraints_gro, "w") as writer:
+        for line in open(input_gro).readlines():
+            if line_num < 2:
+                writer.write(line)
+            elif any(molecule in line for molecule in mol_types):
+                restrained_line = [
+                line[0:20],
+                "{:06.3f}".format(restraintsXYZ[0]),
+                "{:06.3f}".format(restraintsXYZ[1]),
+                "{:06.3f}".format(restraintsXYZ[2]),
+                ]
+                writer.write("  ".join(restrained_line) + "\n")  
+            elif line_num > 2:
+                writer.write(line)
+            line_num += 1
