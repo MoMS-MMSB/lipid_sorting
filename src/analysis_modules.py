@@ -189,24 +189,29 @@ def process_trajectory_parallel(universe,  output="dataframe.csv", axis = "z"):
     df = results_to_df(result, resnames)
     df.to_csv(output)
 
-def df_to_plot(df, resnames, rolling=1, title=False, colours=False, x_label="Frame"):
+def df_to_plot(df, resnames, rolling=1, bg=False, title=False, colours=False, x_label="Frame"):
     """
     Plot a dataframe, with lipids taking their colours from a dictionary.
     Rolling average can be applied with input variable rolling.
     """
     for resname in resnames:
         if colours:
-            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), color=colours[resname], linestyle="--", label= resname + " Outer")
-            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), color=colours[resname], linestyle="-.", label= resname + " Inner")
+            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), color=colours[resname], linewidth=3, linestyle="-", label= resname + " Outer")
+            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), color=colours[resname], linewidth=3,linestyle="--", label= resname + " Inner")
+            if bg:
+                plt.plot(df[resname + " Outer"], color=colours[resname], linewidth=3, alpha = 0.25)
+                plt.plot(df[resname + " Inner"], color=colours[resname], linewidth=3, alpha = 0.25)
         else:
             plt.plot(df[resname + " Outer"].rolling(rolling).mean(), linestyle="--", label= resname + " Outer")
             plt.plot(df[resname + " Inner"].rolling(rolling).mean(), linestyle="-.", label= resname + " Inner")
-    
+            if bg:
+                plt.plot(df[resname + " Outer"], linewidth=3, alpha = 0.25)
+                plt.plot(df[resname + " Inner"], linewidth=3, alpha = 0.25)
     plt.legend()
     plt.ylabel("# Lipids")
     plt.xlabel(x_label)
     if title:
-        plt.title(title,fontsize=40)
+        plt.title(title)
 
     return(plt)
 
@@ -255,7 +260,7 @@ def trajectory_to_plot_jupyter(trajectory, rolling=1, title=False, colours=False
     plt.show()
 
 
-def csv_to_plot(csv, resnames, rolling=1, title=False, colours=False, index_scaling=1, x_label="Frame", out=False):
+def csv_to_plot(csv, resnames, rolling=1, bg=False, title=False, colours=False, index_scaling=1, x_label="Frame", out=False):
     """
     Given a csv file and list of resnames, create dataframes and plots in accordance with
     earlier function df_to_plot()
@@ -263,8 +268,9 @@ def csv_to_plot(csv, resnames, rolling=1, title=False, colours=False, index_scal
     df = pd.read_csv(csv)
     df[df.columns[0]] = df[df.columns[0]]/index_scaling
     df = df.set_index(df.columns[0])
-    df_to_plot(df, resnames, rolling, title, colours, x_label)
+    # print(rolling)
+    df_to_plot(df, resnames, rolling, bg, title, colours, x_label)
 
     if out:
         plt.savefig(out)
-    plt.show()
+    return(plt)
