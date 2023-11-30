@@ -1,6 +1,6 @@
 import os
 import time
-from ..src import analysis_modules
+from src import analysis_modules
 import MDAnalysis as mda
 
 root = "/data1/jackson/MD/Membrane_Systems/Tubules/"
@@ -27,9 +27,18 @@ POPC_POPE_20 = mda.Universe(root + "POPC_POPE/r20/production/noW.gro",
 POPC_POPE_30 = mda.Universe(root + "POPC_POPE/r30/production/noW.gro", 
                  root + "POPC_POPE/r30/production/noW.xtc")
 
+ER5_10 = mda.Universe(root + "ER5/r10/production/noW.gro", 
+                 root + "ER5/r10/production/noW.xtc")
+
+ER5_20 = mda.Universe(root + "ER5/r20/production/noW.gro", 
+                 root + "ER5/r20/production/noW.xtc")
+
+ER5_30 = mda.Universe(root + "ER5/r30/production/noW.gro", 
+                 root + "ER5/r30/production/noW.xtc")
+
 # systems = [DOPC_POPC_10, DOPC_POPC_20, DOPC_POPC_30, POPC_POPE_10, POPC_POPE_20, POPC_POPE_30]
 
-systems = [DOPC_POPC_30, POPC_POPE_10, POPC_POPE_20, POPC_POPE_30]
+systems = [ER5_10, ER5_20]
 
 
 system_outputs = {DOPC_POPC_10 : "DOPC_POPC_10.csv",
@@ -37,9 +46,10 @@ system_outputs = {DOPC_POPC_10 : "DOPC_POPC_10.csv",
                    DOPC_POPC_30 : "DOPC_POPC_30.csv",
                    POPC_POPE_10 : "POPC_POPE_10.csv",
                    POPC_POPE_20 : "POPC_POPE_20.csv",
-                   POPC_POPE_30 : "POPC_POPE_30.csv"}
-
-colours = {"DOPC" : "red", "POPC":"blue", "POPE":"orange"}
+                   POPC_POPE_30 : "POPC_POPE_30.csv",
+                   ER5_10 : "ER5_10.csv",
+                   ER5_20 : "ER5_20.csv",
+                   ER5_30 : "ER5_30.csv"}
 
 for system in systems:
     print('\n\nProcessing: ' + system_outputs[system].split(".")[0] + "\n...")

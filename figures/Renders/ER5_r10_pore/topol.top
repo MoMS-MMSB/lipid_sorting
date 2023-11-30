@@ -1,0 +1,23 @@
+#include "/data1/jackson/TS2CG_pipeline/top/martini_v3.0.0.itp"
+#include "/data1/jackson/TS2CG_pipeline/top/martini_v3.0_ffbonded_dev_v14.itp"
+#include "martini_v3.0.0_Phospholipids_v1_[Restrained].itp"
+#include "/data1/jackson/TS2CG_pipeline/top/martini_v3.0.0_solvents_v1.itp"
+#include "/data1/jackson/TS2CG_pipeline/top/martini_v3.0.0_ions_v1.itp"
+#include "/data1/jackson/TS2CG_pipeline/top/martini_v3.0_DO_[Restrained].itp"
+
+[ system ]
+; name
+Expect a large membrane in water
+
+[ molecules ]
+; name number
+DOPC 875
+POPC 863
+DOPE 863
+DOPS 145
+DOPA 146
+DOPC 705
+POPC 705
+DOPE 708
+DOPS 121
+DOPA 119
