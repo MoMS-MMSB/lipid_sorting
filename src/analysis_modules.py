@@ -142,12 +142,12 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
 
     universe.universe.trajectory[frame_index]
 
-    residue_atom_dict = first_and_last_atoms(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
+    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
 
     center = non_water_COG(universe)
 
     assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
-    assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
+    # assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
 
     if axis == "x":
         tubule_center = [center[1], center[2]]
@@ -161,9 +161,9 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
     
     overall_totals = []
 
+
     for resname in residue_atom_dict:
         heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}')
-
         tails = []
         for tail_name in residue_atom_dict[resname][1]:
             tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}'))
@@ -173,7 +173,6 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
 
         for i in range(len(heads)):
             head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
-            
             tailA = tails[0][i]   
             tailB = tails[1][i]
             average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
@@ -189,7 +188,6 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
         overall_totals.append(outer_total)
         overall_totals.append(inner_total)
     return(overall_totals)
-
 
 def results_to_df(array, resnames):
     """
