@@ -52,10 +52,10 @@ def residuesInPore(input_gro, axis, pore_centerA, pore_centerB, radius, moltypes
                 dimA, dimB = y, z
                 boxA, boxB = box_dims[1], box_dims[2]
             elif axis == "y":
-                dimA, dimB == x, z
+                dimA, dimB = x, z
                 boxA, boxB = box_dims[0], box_dims[2]
             elif axis == "z":
-                dimA, dimB == x, y
+                dimA, dimB = x, y
                 boxA, boxB = box_dims[0], box_dims[1]
 
             if (isWithinCircle(dimA, dimB, pore_centerA, pore_centerB, boxA, boxB, radius)) and (atomType.strip() in moltypes):

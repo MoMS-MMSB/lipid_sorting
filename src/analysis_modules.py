@@ -52,7 +52,7 @@ def martini_lipid_tails(universe, list_of_residues):
         residue_first_last_atoms = []
         for r in universe.residues:
             if str(r.resname) == residue:
-                residue_first_last_atoms.append((r.atoms[0].name)) # head
+                residue_first_last_atoms.append(([r.atoms[0].name])) # head
                 tail_dic = {} 
                 for atom in r.atoms[:]:
                     last_char = atom.name[-1]
@@ -60,16 +60,15 @@ def martini_lipid_tails(universe, list_of_residues):
                         if last_char not in tail_dic:
                              tail_dic[last_char] = []
                         tail_dic[last_char].append(atom.name)
+                tail_first_last = []
                 for tail in tail_dic:
-                    residue_first_last_atoms.append(tail_dic[tail][-1])    
+                    tail_first_last.append(tail_dic[tail][-1])    
+                residue_first_last_atoms.append(tail_first_last)
                 break
         # print(residue_first_last_atoms)
         residue_atom_dict[residue] = residue_first_last_atoms
     return(residue_atom_dict)
     
-
-
-
 
 def distance_between_points(point1, point2):
     """Calculate the distance between two two-dimensional points"""
@@ -85,10 +84,67 @@ def lipids_per_tubule_leaflet(universe, axis="z", residue_atom_dict=False, cente
     """
 
     if residue_atom_dict == False:
-        residue_atom_dict = first_and_last_atoms(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
+        residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
     
     if center == False:
         center = non_water_COG(universe)
+
+    assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
+    # assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
+
+    if axis == "x":
+        tubule_center = [center[1], center[2]]
+        dims = [1,2]
+    elif axis == "y":
+        tubule_center = [center[0], center[2]]
+        dims = [0,2]
+    elif axis == "z":
+        tubule_center = [center[0], center[1]]
+        dims = [0,1]
+    
+    overall_totals = []
+
+    for resname in residue_atom_dict:
+        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}')
+
+        tails = []
+        for tail_name in residue_atom_dict[resname][1]:
+            tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}'))
+
+        outer_total = 0
+        inner_total = 0
+
+        for i in range(len(heads)):
+            head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
+            
+            tailA = tails[0][i]   
+            tailB = tails[1][i]
+            average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
+            average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
+            tail_coords = [average_first_dim, average_second_dim]
+
+            head_dist = (distance_between_points(head_coords, tubule_center))
+            tail_dist = (distance_between_points(tail_coords, tubule_center))
+            if head_dist > tail_dist:
+                outer_total += 1
+            else:
+                inner_total += 1
+        overall_totals.append(outer_total)
+        overall_totals.append(inner_total)
+    return(overall_totals)
+
+def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
+    """
+    From an MDAnalysis universe and a dictionary containing residue names with their first and 
+    last atoms, assign each residue (i.e. lipid) to either the inner or outer tubule leaflet,
+    where the tubule is periodic in the dimension specified by variable 'axis'
+    """
+
+    universe.universe.trajectory[frame_index]
+
+    residue_atom_dict = first_and_last_atoms(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
+
+    center = non_water_COG(universe)
 
     assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
     assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
@@ -106,125 +162,26 @@ def lipids_per_tubule_leaflet(universe, axis="z", residue_atom_dict=False, cente
     overall_totals = []
 
     for resname in residue_atom_dict:
-        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0]}')
-        tails = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][1]}')
+        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}')
+
+        tails = []
+        for tail_name in residue_atom_dict[resname][1]:
+            tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}'))
 
         outer_total = 0
         inner_total = 0
+
         for i in range(len(heads)):
             head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
-            tail_coords = [tails.positions[i][dims[0]], tails.positions[i][dims[1]]]
-            head_dist = (distance_between_points(head_coords, tubule_center))
-            tail_dist = (distance_between_points(tail_coords, tubule_center))
-            if head_dist > tail_dist:
-                outer_total += 1
-            else:
-                inner_total += 1
-        overall_totals.append(outer_total)
-        overall_totals.append(inner_total)
-    return(overall_totals)
-
-# def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
-#     """
-#     From an MDAnalysis universe and a dictionary containing residue names with their first and 
-#     last atoms, assign each residue (i.e. lipid) to either the inner or outer tubule leaflet,
-#     where the tubule is periodic in the dimension specified by variable 'axis'
-#     """
-
-#     universe.universe.trajectory[frame_index]
-
-#     residue_atom_dict = first_and_last_atoms(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
-
-#     center = non_water_COG(universe)
-
-#     assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
-#     assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
-
-#     if axis == "x":
-#         tubule_center = [center[1], center[2]]
-#         dims = [1,2]
-#     elif axis == "y":
-#         tubule_center = [center[0], center[2]]
-#         dims = [0,2]
-#     elif axis == "z":
-#         tubule_center = [center[0], center[1]]
-#         dims = [0,1]
-    
-#     overall_totals = []
-
-#     for resname in residue_atom_dict:
-#         heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0]}')
-#         tails = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][1]}')
-
-#         outer_total = 0
-#         inner_total = 0
-#         for i in range(len(heads)):
-#             head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
-#             tail_coords = [tails.positions[i][dims[0]], tails.positions[i][dims[1]]]
-#             head_dist = (distance_between_points(head_coords, tubule_center))
-#             tail_dist = (distance_between_points(tail_coords, tubule_center))
-#             if head_dist > tail_dist:
-#                 outer_total += 1
-#             else:
-#                 inner_total += 1
-#         overall_totals.append(outer_total)
-#         overall_totals.append(inner_total)
-#     return(overall_totals)
-
-def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z", multiple_tails = False):
-    """
-    From an MDAnalysis universe and a dictionary containing residue names with their first and 
-    last atoms, assign each residue (i.e. lipid) to either the inner or outer tubule leaflet,
-    where the tubule is periodic in the dimension specified by variable 'axis'
-    """
-
-    universe.universe.trajectory[frame_index]
-
-    if multiple_tails:
-        residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
-    else:
-        residue_atom_dict = first_and_last_atoms(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
-
-    center = non_water_COG(universe)
-
-    assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
-    # assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
-
-    if axis == "x":
-        tubule_center = [center[1], center[2]]
-        dims = [1,2]
-    elif axis == "y":
-        tubule_center = [center[0], center[2]]
-        dims = [0,2]
-    elif axis == "z":
-        tubule_center = [center[0], center[1]]
-        dims = [0,1]
-    
-    overall_totals = []
-
-
-    # use old version for cheaper analysis...
-    for resname in residue_atom_dict:
-        if multiple_tails:
-            tails_string = " ".join(residue_atom_dict[resname][1:])
-
-        outer_total = 0
-        inner_total = 0
-        resids = universe.select_atoms(f'resname {resname}').residues
-        for resid in resids:
-            resid_str = str(resid).split()[-1].rstrip(">")
             
-            head_com = (universe.select_atoms(f'resid {resid_str} and name {residue_atom_dict[resname][0]}').center_of_mass())
-            head_coords = [head_com[dims[0]], head_com[dims[1]]]
-            # print(head_coords)
-            if multiple_tails:
-                tail_com = (universe.select_atoms(f'resid {resid_str} and name {tails_string}').center_of_mass())
-            else:
-                tail_com = (universe.select_atoms(f'resid {resid_str} and name {residue_atom_dict[resname][1]}').center_of_mass())
-            tail_coords = [tail_com[dims[0]], tail_com[dims[1]]]
+            tailA = tails[0][i]   
+            tailB = tails[1][i]
+            average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
+            average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
+            tail_coords = [average_first_dim, average_second_dim]
+
             head_dist = (distance_between_points(head_coords, tubule_center))
             tail_dist = (distance_between_points(tail_coords, tubule_center))
-
             if head_dist > tail_dist:
                 outer_total += 1
             else:
@@ -233,11 +190,6 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z", multiple
         overall_totals.append(inner_total)
     return(overall_totals)
 
-# root = "/data1/jackson/MD/Membrane_Systems/Tubules/"
-# DOPC_POPC_10 = mda.Universe(root + "DOPC_POPC/r10/production/noW.gro", root + "DOPC_POPC/r10/production/noW.xtc")
-# resname = residue_names(DOPC_POPC_10)
-# print(martini_lipid_tails(DOPC_POPC_10, resname))
-# print(lipids_per_tubule_leaflet_parallel(1, DOPC_POPC_10, axis="z", multiple_tails=True))
 
 def results_to_df(array, resnames):
     """
