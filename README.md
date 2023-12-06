@@ -1,5 +1,7 @@
 # LIPID SORTING IN TUBULES
 
+![](figures/Renders/POPC_POPE_r10_l10_pore/x_110_5deg_dof_notrj.gif)
+
 ## Introduction
 Coming soon! Once this gets published, I can write more here :)
 
@@ -15,9 +17,9 @@ An example of this is found in the script **SCRIPT**
 
 Following generation of all of these files, you will be ready to run a production run. Depending on the system size, these can take considerable amounts of time to run, especially locally. Use of dedicated computing resources such as a cluster or supercomputer are desireable, however if they are inaccessible, consider sticking to smaller systems and shorter simulations. 
 
-Once the production run has completed, you will need to run the analysis. Again, this can take considerable amounts of time - **for now, it runs on a single core; expect multiprocessing shortly**. The resulting files will be saved as a .csv, after which you can visualise these. All relevant modules can be found in /src/analysis_modules.py.
+Once the production run has completed, you will need to run the analysis. The resulting files will be saved as a .csv, after which you can visualise these. All relevant modules can be found in /src/analysis_modules.py.
 
-process_trajectory.py is the example script used to run the analysis on one or several systems; here, showing the exact commands used to process the systems from the publication. Again, depending on the size of the systems, this can take a few hours. It is recommended to remove water from the .gro and trajectory files.
+process_trajectories.py is the example script used to run the analysis on one or several systems; here, showing the exact commands used to process the systems from the publication. It is recommended to remove water from the .gro and trajectory files.
 
 ## Files
 example_results contain the results for the figures used in the publication. Likewise, Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd. 
