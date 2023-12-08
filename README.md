@@ -24,8 +24,9 @@ process_trajectories.py is the example script used to run the analysis on one or
 ## Files
 example_results contain the results for the figures used in the publication. Likewise, Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd. 
 
-## What if I want to run my own?
-The following protocol will allow you to generate *your own* tubules from scratch - all you know is your desired composition, and nothing else.
+# TUTORIAL
+
+The following protocol will allow you to generate *your own* tubules from scratch - all you know is your desired composition, and nothing else. You can follow the exact steps in the tutorial, for which the files are included; or, you can change the composition of the tubule yourself, and try your own system. The protocol remains the same.
 
 If you end up using this tutorial, you should cite our book chapter (coming soon) and also TS2CG, the paper for which is found [here](https://rdcu.be/drEQr): 
 
@@ -35,11 +36,14 @@ You will need:
 - A conda environment for this repository. This gives you access to the in-house scripts generated for setup and analysis, and all their required python package dependencies. Notably, this includes Nextflow, the software used to run the workflow for initial structure generation. This is done by running ```conda env create --name lipid-sorting --file=environments.yml```
 - A working GROMACS install. This entire process was developed using GROMACS/2023.1, the installation instructions for which can be found [here](https://manual.gromacs.org/documentation/2023.1/install-guide/index.html)
 
-Once you've cloned the repository, created the environment, and entered into the directory, we can begin.
+Once you've cloned the repository and created the environment, we can begin.
 
-It's a good idea to create a seperate folder in which to begin. Enter that folder, and create a file called generate.str, which will contain all the important information the creation of your tubule.
+## 1. Run the pipeline
+Create a new folder, and enter. For this tutorial, we will call this folder 1.initial/
 
-Here's an example I used to create the simple POPC/POPE lipid mixtures with a radius of 10nm.
+Create a file called generate.str, which will contain all the important information the creation of your tubule.
+
+Here's an example I used to create the simple POPC/POPE lipid mixtures with a radius of 10nm and length of 10nm. We will use this system for the sake of the tutorial, as it is small enough that it could feasibly be run on a local machine, if one doesn't have access to more powerful resources.
 
 ```
 [Lipids List]
@@ -50,19 +54,40 @@ End
 
 [Shape Data]
 ShapeType Cylinder
-Box 30 30 30
+Box 30 30 10
 Thickness 2
 Radius 10
 End
 ```
 
+We can then run the nextflow pipeline, by running:
+
 
 ```
-nextflow run ../TS2CG_Setup_Pipeline/main.nf --input ${input} --outDir ${pwd}/out
+nextflow run ../../TS2CG-Setup-Pipeline/main.nf 
 ```
 
 Based on your system and computer, the time taken can vary. The benefit of nextflow is that if any one step returns an error, it will at which steo the error occurred, and can even be resumed from the prior step by adding ```--resume``` to the command line call once the errors have been resolved.
 
-After the workflow has run, files named "workflow_out.gro" and "workflow_out.top" will be generated.
+After the workflow has run, files named "eq.gro", "index.ndx", and "topol.top" will be generated in the results/ subfolder of 1.initial/
 
-# **TUTORIAL TO BE CONTINUED**
+## 2. Equilibrate (without pores)
+
+Go up one level and make a new folder; 2.eq_nopores/
+
+In the corresponding tutorial file, you will find an .mdp file to run the first "proper" equilibration. The example here is for just 100ns; bigger systems almost certainly necessitate a longer equilibration here. The larger systems in the book chapter all were run for 500ns at this step, however these were done on a cluster. 
+
+Run the gromacs pre-processing function gmx grompp:
+
+```
+gmx grompp -f eq-nopore.mdp -c ../1.initial/results/eq.gro -p ../1.initial/results/topol.top -n ../1.initial/results/index.ndx -o eq_nopore.tpr
+```
+
+And run the system however suits you, using gmx mdrun. 
+
+## 3. Generate the pores
+
+
+## 4. Perform production run, holding the pores open
+
+### **i)** 

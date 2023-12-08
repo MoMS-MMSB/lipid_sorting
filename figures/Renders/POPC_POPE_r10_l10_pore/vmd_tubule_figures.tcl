@@ -67,7 +67,6 @@ rotate x by 110.000000
 for { set i 1 } { $i < 73 } { incr i } {
     set rotate [expr {$i * 5}]
     rotate y by 5
-    animate goto [expr { $i + 100 }]
     render TachyonLOptiXInternal rotate_${rotate}.bmp -res 500 500 -format bmp
 }
 
