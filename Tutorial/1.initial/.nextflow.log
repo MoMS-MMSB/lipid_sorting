@@ -1,0 +1,101 @@
+Dec-08 14:37:03.069 [main] DEBUG nextflow.cli.Launcher - Setting HTTP proxy: ProxyConfig[protocol=http; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:37:03.090 [main] DEBUG nextflow.cli.Launcher - Setting HTTPS proxy: ProxyConfig[protocol=https; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:37:03.090 [main] DEBUG nextflow.cli.Launcher - Setting FTP proxy: ProxyConfig[protocol=ftp; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:37:03.090 [main] DEBUG nextflow.cli.Launcher - Setting http proxy: ProxyConfig[protocol=http; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:37:03.090 [main] DEBUG nextflow.cli.Launcher - Setting https proxy: ProxyConfig[protocol=https; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:37:03.091 [main] DEBUG nextflow.cli.Launcher - Setting ftp proxy: ProxyConfig[protocol=ftp; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:37:03.091 [main] DEBUG nextflow.cli.Launcher - $> nextflow run ../../TS2CG-Setup-Pipeline/main.nf
+Dec-08 14:37:03.146 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 23.04.2
+Dec-08 14:37:03.167 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/jcrowley/.nextflow/plugins; core-plugins: nf-amazon@1.16.2,nf-azure@1.0.1,nf-codecommit@0.1.4,nf-console@1.0.5,nf-ga4gh@1.0.5,nf-google@1.7.3,nf-tower@1.5.12,nf-wave@0.8.3
+Dec-08 14:37:03.178 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Dec-08 14:37:03.179 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Dec-08 14:37:03.183 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Dec-08 14:37:03.194 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Dec-08 14:37:03.251 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 by global default
+Dec-08 14:37:03.271 [main] INFO  nextflow.cli.CmdRun - Launching `../../TS2CG-Setup-Pipeline/main.nf` [berserk_kimura] DSL2 - revision: 5bca1afc30
+Dec-08 14:37:03.272 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Dec-08 14:37:03.272 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Dec-08 14:37:03.281 [main] DEBUG nextflow.secret.LocalSecretsProvider - Secrets store: /home/jcrowley/.nextflow/secrets/store.json
+Dec-08 14:37:03.288 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@45f24169] - activable => nextflow.secret.LocalSecretsProvider@45f24169
+Dec-08 14:37:03.366 [main] DEBUG nextflow.Session - Session UUID: 470a9bf4-5a60-4aec-a7c4-8fd281e52f7c
+Dec-08 14:37:03.366 [main] DEBUG nextflow.Session - Run name: berserk_kimura
+Dec-08 14:37:03.367 [main] DEBUG nextflow.Session - Executor pool size: 40
+Dec-08 14:37:03.379 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=120; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Dec-08 14:37:03.413 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 23.04.2 build 5870
+  Created: 08-06-2023 08:29 UTC (10:29 CEST)
+  System: Linux 5.4.0-167-generic
+  Runtime: Groovy 3.0.16 on OpenJDK 64-Bit Server VM 11.0.21+9-post-Ubuntu-0ubuntu120.04
+  Encoding: UTF-8 (UTF-8)
+  Process: 777654@ibcp22-097 [192.168.24.18]
+  CPUs: 40 - Mem: 62.5 GB (4.4 GB) - Swap: 980 MB (967.5 MB)
+Dec-08 14:37:03.437 [main] DEBUG nextflow.Session - Work-dir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work [ext2/ext3]
+Dec-08 14:37:03.438 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/TS2CG-Setup-Pipeline/bin
+Dec-08 14:37:03.450 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Dec-08 14:37:03.461 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Dec-08 14:37:03.481 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Dec-08 14:37:03.491 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 41; maxThreads: 1000
+Dec-08 14:37:03.605 [main] DEBUG nextflow.Session - Session start
+Dec-08 14:37:04.309 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Dec-08 14:37:04.763 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.763 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.769 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Dec-08 14:37:04.774 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=40; memory=62.5 GB; capacity=40; pollInterval=100ms; dumpInterval=5m
+Dec-08 14:37:04.893 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.893 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.898 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.899 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.908 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.908 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.915 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.915 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.920 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.920 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.925 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.925 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.930 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:37:04.930 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:37:04.935 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: SOLVATE, EQ2, EM, MAKEINDEX, EM3, EM2, EQ, RUNTS2CG
+Dec-08 14:37:04.935 [main] DEBUG nextflow.Session - Igniting dataflow network (8)
+Dec-08 14:37:04.935 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > RUNTS2CG
+Dec-08 14:37:04.936 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EM
+Dec-08 14:37:04.937 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EM2
+Dec-08 14:37:04.938 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EQ
+Dec-08 14:37:04.939 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SOLVATE
+Dec-08 14:37:04.942 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > MAKEINDEX
+Dec-08 14:37:04.942 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EM3
+Dec-08 14:37:04.943 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EQ2
+Dec-08 14:37:04.943 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Dec-08 14:37:04.943 [main] DEBUG nextflow.Session - Session await
+Dec-08 14:37:05.177 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:05.183 [Task submitter] INFO  nextflow.Session - [aa/c63f29] Submitted process > RUNTS2CG
+Dec-08 14:37:05.405 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: RUNTS2CG; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/aa/c63f294e9397628443019463f472f5]
+Dec-08 14:37:05.458 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:05.460 [Task submitter] INFO  nextflow.Session - [72/324bb2] Submitted process > EM
+Dec-08 14:37:19.430 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: EM; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/72/324bb248d200384aff65137f2319e3]
+Dec-08 14:37:19.460 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:19.461 [Task submitter] INFO  nextflow.Session - [ac/c0baa2] Submitted process > EM2
+Dec-08 14:37:20.418 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 3; name: EM2; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/ac/c0baa217e6958296e8de4f85993952]
+Dec-08 14:37:20.441 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:20.442 [Task submitter] INFO  nextflow.Session - [3b/164acd] Submitted process > EQ
+Dec-08 14:37:47.539 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 4; name: EQ; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/3b/164acd17036d104930ccbbb8615830]
+Dec-08 14:37:47.568 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:47.568 [Task submitter] INFO  nextflow.Session - [5e/436168] Submitted process > SOLVATE
+Dec-08 14:37:47.579 [Task monitor] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'PublishDir' minSize=10; maxSize=120; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Dec-08 14:37:48.468 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 5; name: SOLVATE; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/5e/43616847be6ba69612b7a91b983615]
+Dec-08 14:37:48.484 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:48.486 [Task submitter] INFO  nextflow.Session - [dd/37f8ce] Submitted process > MAKEINDEX
+Dec-08 14:37:48.491 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:48.492 [Task submitter] INFO  nextflow.Session - [38/a8fd15] Submitted process > EM3
+Dec-08 14:37:51.117 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 6; name: MAKEINDEX; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/dd/37f8ce1388aaee73577d5917f637d0]
+Dec-08 14:37:53.864 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 7; name: EM3; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/38/a8fd157ddbec876da52655ef1a4db4]
+Dec-08 14:37:53.884 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Dec-08 14:37:53.884 [Task submitter] INFO  nextflow.Session - [36/50d17b] Submitted process > EQ2
+Dec-08 14:38:55.921 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 8; name: EQ2; status: COMPLETED; exit: 0; error: -; workDir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/36/50d17b44e68435c48947e542b14b56]
+Dec-08 14:38:55.925 [main] DEBUG nextflow.Session - Session await > all processes finished
+Dec-08 14:38:55.927 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Dec-08 14:38:55.941 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'PublishDir' shutdown completed (hard=false)
+Dec-08 14:38:55.954 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=8; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=29m 9s; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=2; peakCpus=17; peakMemory=0; ]
+Dec-08 14:38:56.050 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Dec-08 14:38:56.067 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Dec-08 14:38:56.067 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

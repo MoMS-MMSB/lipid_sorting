@@ -1,0 +1,12 @@
+[Lipids List]
+Domain 0
+POPC    0.5  0.5   0.70
+POPE    0.5  0.5   0.70
+End
+
+[Shape Data]
+ShapeType Cylinder
+Box 30 30 10
+Thickness 2
+Radius 10
+End

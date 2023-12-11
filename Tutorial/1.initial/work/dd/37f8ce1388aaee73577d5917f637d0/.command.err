@@ -1,0 +1,13 @@
+                     :-) GROMACS - gmx make_ndx, 2022.5 (-:
+
+Executable:   /softwares/gromacs/2022.5/bin/gmx
+Data prefix:  /softwares/gromacs/2022.5
+Working dir:  /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work/dd/37f8ce1388aaee73577d5917f637d0
+Command line:
+  gmx make_ndx -f input.gro
+
+
+Reading structure file
+
+GROMACS reminds you: "The Poodle Chews It" (F. Zappa)
+

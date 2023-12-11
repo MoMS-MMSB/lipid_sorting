@@ -36,14 +36,17 @@ You will need:
 - A conda environment for this repository. This gives you access to the in-house scripts generated for setup and analysis, and all their required python package dependencies. Notably, this includes Nextflow, the software used to run the workflow for initial structure generation. This is done by running ```conda env create --name lipid-sorting --file=environments.yml```
 - A working GROMACS install. This entire process was developed using GROMACS/2023.1, the installation instructions for which can be found [here](https://manual.gromacs.org/documentation/2023.1/install-guide/index.html)
 
-Once you've cloned the repository and created the environment, we can begin.
+Once you've cloned the repository and created the environment, we can begin. Activate the conda environment:
+ ```
+ conda activate lipid-sorting
+ ```
 
 ## 1. Run the pipeline
 Create a new folder, and enter. For this tutorial, we will call this folder 1.initial/
 
 Create a file called generate.str, which will contain all the important information the creation of your tubule.
 
-Here's an example I used to create the simple POPC/POPE lipid mixtures with a radius of 10nm and length of 10nm. We will use this system for the sake of the tutorial, as it is small enough that it could feasibly be run on a local machine, if one doesn't have access to more powerful resources.
+Here's an example I used to create the simple POPC/POPE lipid mixtures with a radius of 10nm and length of 10nm, specified in the book chapter as the system with reduced cost. We will use this system for the sake of the tutorial, as it is probably the easiest to run on most machines, and yields results the "fastest"
 
 ```
 [Lipids List]
@@ -75,7 +78,7 @@ After the workflow has run, files named "eq.gro", "index.ndx", and "topol.top" w
 
 Go up one level and make a new folder; 2.eq_nopores/
 
-In the corresponding tutorial file, you will find an .mdp file to run the first "proper" equilibration. The example here is for just 100ns; bigger systems almost certainly necessitate a longer equilibration here. The larger systems in the book chapter all were run for 500ns at this step, however these were done on a cluster. 
+In the corresponding tutorial file, you will find an .mdp file to run the first "proper" equilibration. The example here is for 500ns, and will most definitely require a cluster of sorts. 
 
 Run the gromacs pre-processing function gmx grompp:
 
@@ -83,11 +86,17 @@ Run the gromacs pre-processing function gmx grompp:
 gmx grompp -f eq-nopore.mdp -c ../1.initial/results/eq.gro -p ../1.initial/results/topol.top -n ../1.initial/results/index.ndx -o eq_nopore.tpr
 ```
 
-And run the system however suits you, using gmx mdrun. 
+Run the system however you can, eventually yielding "eq_nopore.gro". An example gro file has been provided in the relevant tutorial files, for those who simply wish to follow the process without running the actual simulations (a smart idea!)
 
 ## 3. Generate the pores
+Let's make a new folder, 3.create_pore/
 
+As outlined in the chapter, pores are *really* permitted via (i) their initial creation and (ii) holding them open in subsequent simulations using flat-bottomed potentials.
+
+### **i)** Create pores
+In the respective tutorial folder is a script, generate_pores.py. If you haven't already, enter into this new folder.
+
+### **i)** Define flat-bottomed potentials
 
 ## 4. Perform production run, holding the pores open
 
-### **i)** 

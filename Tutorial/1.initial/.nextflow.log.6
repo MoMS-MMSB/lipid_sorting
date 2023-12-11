@@ -1,0 +1,142 @@
+Dec-08 14:18:53.032 [main] DEBUG nextflow.cli.Launcher - Setting HTTP proxy: ProxyConfig[protocol=http; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:18:53.056 [main] DEBUG nextflow.cli.Launcher - Setting HTTPS proxy: ProxyConfig[protocol=https; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:18:53.056 [main] DEBUG nextflow.cli.Launcher - Setting FTP proxy: ProxyConfig[protocol=ftp; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:18:53.056 [main] DEBUG nextflow.cli.Launcher - Setting http proxy: ProxyConfig[protocol=http; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:18:53.056 [main] DEBUG nextflow.cli.Launcher - Setting https proxy: ProxyConfig[protocol=https; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:18:53.057 [main] DEBUG nextflow.cli.Launcher - Setting ftp proxy: ProxyConfig[protocol=ftp; host=ftprox.ibcp.fr; port=3128]
+Dec-08 14:18:53.057 [main] DEBUG nextflow.cli.Launcher - $> nextflow run /data1/jackson/TS2CG_pipeline/main.nf --input generate_2.str
+Dec-08 14:18:53.122 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 23.04.2
+Dec-08 14:18:53.142 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/jcrowley/.nextflow/plugins; core-plugins: nf-amazon@1.16.2,nf-azure@1.0.1,nf-codecommit@0.1.4,nf-console@1.0.5,nf-ga4gh@1.0.5,nf-google@1.7.3,nf-tower@1.5.12,nf-wave@0.8.3
+Dec-08 14:18:53.153 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Dec-08 14:18:53.154 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Dec-08 14:18:53.158 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Dec-08 14:18:53.169 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Dec-08 14:18:53.240 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 by global default
+Dec-08 14:18:53.260 [main] INFO  nextflow.cli.CmdRun - Launching `/data1/jackson/TS2CG_pipeline/main.nf` [modest_bartik] DSL2 - revision: 06e7b003cb
+Dec-08 14:18:53.261 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Dec-08 14:18:53.261 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Dec-08 14:18:53.272 [main] DEBUG nextflow.secret.LocalSecretsProvider - Secrets store: /home/jcrowley/.nextflow/secrets/store.json
+Dec-08 14:18:53.291 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@57bd802b] - activable => nextflow.secret.LocalSecretsProvider@57bd802b
+Dec-08 14:18:53.363 [main] DEBUG nextflow.Session - Session UUID: d1b96c79-800d-4b85-9afe-cc35e40c3447
+Dec-08 14:18:53.363 [main] DEBUG nextflow.Session - Run name: modest_bartik
+Dec-08 14:18:53.364 [main] DEBUG nextflow.Session - Executor pool size: 40
+Dec-08 14:18:53.375 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=120; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Dec-08 14:18:53.409 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 23.04.2 build 5870
+  Created: 08-06-2023 08:29 UTC (10:29 CEST)
+  System: Linux 5.4.0-167-generic
+  Runtime: Groovy 3.0.16 on OpenJDK 64-Bit Server VM 11.0.21+9-post-Ubuntu-0ubuntu120.04
+  Encoding: UTF-8 (UTF-8)
+  Process: 769586@ibcp22-097 [192.168.24.18]
+  CPUs: 40 - Mem: 62.5 GB (4.5 GB) - Swap: 980 MB (967.5 MB)
+Dec-08 14:18:53.432 [main] DEBUG nextflow.Session - Work-dir: /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial_Test/1.initial/work [ext2/ext3]
+Dec-08 14:18:53.433 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /data1/jackson/TS2CG_pipeline/bin
+Dec-08 14:18:53.445 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Dec-08 14:18:53.457 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Dec-08 14:18:53.479 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Dec-08 14:18:53.489 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 41; maxThreads: 1000
+Dec-08 14:18:53.596 [main] DEBUG nextflow.Session - Session start
+Dec-08 14:18:54.327 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Dec-08 14:18:54.806 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.806 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.812 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Dec-08 14:18:54.817 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=40; memory=62.5 GB; capacity=40; pollInterval=100ms; dumpInterval=5m
+Dec-08 14:18:54.938 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.938 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.943 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.943 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.953 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.953 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.959 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.959 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.963 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.963 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.968 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.968 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.973 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Dec-08 14:18:54.973 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Dec-08 14:18:54.977 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: EQ2, SOLVATE, EM, MAKEINDEX, EM3, EM2, EQ, RUNTS2CG
+Dec-08 14:18:54.978 [main] DEBUG nextflow.Session - Igniting dataflow network (8)
+Dec-08 14:18:54.978 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > RUNTS2CG
+Dec-08 14:18:54.979 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EM
+Dec-08 14:18:54.979 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EM2
+Dec-08 14:18:54.980 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EQ
+Dec-08 14:18:54.980 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SOLVATE
+Dec-08 14:18:54.982 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > MAKEINDEX
+Dec-08 14:18:54.982 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EM3
+Dec-08 14:18:54.983 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > EQ2
+Dec-08 14:18:54.983 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination 
+Dec-08 14:18:54.983 [main] DEBUG nextflow.Session - Session await
+Dec-08 14:18:55.127 [Actor Thread 10] DEBUG nextflow.processor.TaskProcessor - Handling unexpected condition for
+  task: name=RUNTS2CG; work-dir=null
+  error [nextflow.exception.ProcessUnrecoverableException]: Not a valid path value: 'generate_2.str'
+Dec-08 14:18:55.141 [Actor Thread 10] ERROR nextflow.processor.TaskProcessor - Error executing process > 'RUNTS2CG'
+
+Caused by:
+  Not a valid path value: 'generate_2.str'
+
+
+Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
+Dec-08 14:18:55.146 [Actor Thread 10] DEBUG nextflow.Session - Session aborted -- Cause: Not a valid path value: 'generate_2.str'
+Dec-08 14:18:55.169 [Actor Thread 10] DEBUG nextflow.Session - The following nodes are still active:
+[process] RUNTS2CG
+  status=ACTIVE
+  port 0: (value) bound ; channel: pcg
+  port 1: (value) bound ; channel: input
+  port 2: (value) bound ; channel: top_header
+  port 3: (cntrl) -     ; channel: $
+
+[process] EM
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: input.gro
+  port 1: (value) OPEN  ; channel: input.top
+  port 2: (value) bound ; channel: em.mdp
+  port 3: (cntrl) -     ; channel: $
+
+[process] EM2
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: input.gro
+  port 1: (value) OPEN  ; channel: input.top
+  port 2: (value) bound ; channel: em.mdp
+  port 3: (cntrl) -     ; channel: $
+
+[process] EQ
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: input.gro
+  port 1: (value) OPEN  ; channel: input.top
+  port 2: (value) bound ; channel: eq.mdp
+  port 3: (cntrl) -     ; channel: $
+
+[process] SOLVATE
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: input.gro
+  port 1: (value) OPEN  ; channel: topol.top
+  port 2: (cntrl) -     ; channel: $
+
+[process] MAKEINDEX
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: input.gro
+  port 1: (cntrl) -     ; channel: $
+
+[process] EM3
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: input.gro
+  port 1: (value) OPEN  ; channel: input.top
+  port 2: (value) bound ; channel: em.mdp
+  port 3: (cntrl) -     ; channel: $
+
+[process] EQ2
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: input.gro
+  port 1: (value) OPEN  ; channel: input.top
+  port 2: (value) bound ; channel: eq.mdp
+  port 3: (cntrl) -     ; channel: $
+
+Dec-08 14:18:55.172 [main] DEBUG nextflow.Session - Session await > all processes finished
+Dec-08 14:18:55.172 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Dec-08 14:18:55.179 [Actor Thread 1] DEBUG nextflow.processor.TaskProcessor - Handling unexpected condition for
+  task: name=RUNTS2CG; work-dir=null
+  error [java.lang.InterruptedException]: java.lang.InterruptedException
+Dec-08 14:18:55.188 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Dec-08 14:18:55.362 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Dec-08 14:18:55.382 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
