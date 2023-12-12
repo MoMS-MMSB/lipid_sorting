@@ -322,27 +322,29 @@ def csv_to_plot(csv, resnames, rolling=1, bg=False, title=False, colours=False, 
         plt.savefig(out)
     return(plt)
 
-def outer_df_proportions(df):
+def df_proportions(df):
     """
     Take a dataframe with odd columns being Outer leaflet, even columns being Inner leaflet,
     and return a dataframe with each entry as a proportion of their given leaflet.
     """
     # create inner/outer dfs
     df_outer = df.iloc[:, ::2]
-    # df_inner = df.iloc[:, 1::2]
+    df_inner = df.iloc[:, 1::2]
     
     # add column which is sum of all rows
     df_outer["Outer Total"] = df_outer.sum(axis=1)
-    # df_inner["Inner Total"] = df_inner.sum(axis=1)
+    df_inner["Inner Total"] = df_inner.sum(axis=1)
 
     # divide all rows by the total column
     df_outer_prop = df_outer.div(df_outer.iloc[:, -1], axis=0)
-    # df_inner_prop = df_inner.div(df_inner.iloc[:, -1], axis=0)
+    df_inner_prop = df_inner.div(df_inner.iloc[:, -1], axis=0)
 
     # remove total column
     df_outer_prop = df_outer_prop.iloc[:,:-1]
-    # df_inner_prop = df_inner_prop.iloc[:,:-1]
-    return(df_outer_prop)
+    df_inner_prop = df_inner_prop.iloc[:,:-1]
+
+    df_prop = pd.merge(df_outer_prop, df_inner_prop, right_index=True, left_index=True)
+    return(df_prop)
 
 def df_prop_to_plot(df, resnames, rolling=1, bg=False, title=False, colours=False, x_label="Frame"):
     """
@@ -374,7 +376,7 @@ def csv_to_prop_plot(csv, resnames, rolling=1, bg=False, title=False, colours=Fa
     df = pd.read_csv(csv)
     df[df.columns[0]] = df[df.columns[0]]/index_scaling
     df = df.set_index(df.columns[0])
-    df_prop = outer_df_proportions(df)
+    df_prop = df_proportions(df)
     # print(df_prop)
     df_prop_to_plot(df_prop, resnames, rolling, bg, title, colours, x_label)
 

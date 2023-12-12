@@ -2,6 +2,7 @@ README.md
 setup.py
 src/__init__.py
 src/analysis_modules.py
+src/create_pore.py
 src/pore_modules.py
 src.egg-info/PKG-INFO
 src.egg-info/SOURCES.txt
