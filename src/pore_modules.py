@@ -132,6 +132,25 @@ def mol_list(gro):
                 mol_list.append(str(line[5:11]))
     return(mol_list)
 
+def reorder_gro(input_gro, mol_list, output_gro="renumbered.gro"):
+    # mols = mol_list(input_gro)
+    writer = open(output_gro, 'w')
+    with open(input_gro, 'r') as f:
+        for line in f.readlines()[:2]:
+            print(line)
+            writer.write(line)
+
+    for mol in mol_list:
+        with open(input_gro, 'r') as f:
+            for line in f.readlines()[2:-1]:
+                if mol in line: #DO
+                    print(line)
+                    writer.write(line)
+
+    with open(input_gro, 'r') as f:
+        writer.write(f.readlines()[-1])
+    writer.close()
+
 def first_index_mol(gro, mol_list):
     """Return the index of the first molecule for each molecule type provided in mol_list"""
     assert type(mol_list) ==  list

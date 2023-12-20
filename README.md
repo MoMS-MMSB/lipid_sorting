@@ -76,7 +76,7 @@ After the workflow has run, files named "eq.gro", "index.ndx", and "topol.top" w
 
 ## 2. Equilibrate (without pores)
 
-Go up one level and make a new folder; 2.eq_nopores/
+Go up one level and make a new folder; 2.eq_nopore/
 
 In the corresponding tutorial file, you will find an .mdp file to run the first "proper" equilibration. The example here is for 500ns, and will most definitely require a cluster of sorts. 
 
@@ -94,9 +94,18 @@ Let's make a new folder, 3.create_pore/
 As outlined in the chapter, pores are *really* permitted via (i) their initial creation and (ii) holding them open in subsequent simulations using flat-bottomed potentials.
 
 ### **i)** Create pores
-In the respective tutorial folder is a script, generate_pores.py. If you haven't already, enter into this new folder.
+In the respective tutorial folder is a script, generate_pores.py. If you haven't already, enter into this new folder. Then run:
 
-### **i)** Define flat-bottomed potentials
+```
+python create_pore.py -c ../2.eq_nopore/eq_nopore.gro -o create_pore_x.gro --axis x --radius 2.5 -p ../TS2CG/results/topol.top -po modified_x.top --restraints --residues POPC POPE
+
+python create_pore.py -c create_pore_x.gro -o create_pore_xy.gro --axis y --radius 2.5 -p modified_xy.top -po modified.1.top --restraints --residues POPC POPE
+```
+
+We're first generating a pore in the x- dimension, then in the y-dimension; both with radius 2.5nm. Since we're not specifying coordinates (dont with the command line flag --coords), 
+
+
+### **ii)** Define flat-bottomed potentials
 
 ## 4. Perform production run, holding the pores open
 

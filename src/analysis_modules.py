@@ -354,14 +354,18 @@ def df_prop_to_plot(df, resnames, rolling=1, bg=False, title=False, colours=Fals
     for resname in resnames:
         if colours:
             plt.plot(df[resname + " Outer"].rolling(rolling).mean(), color=colours[resname], linewidth=3, linestyle="-", label= resname + " Outer")
+            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), color=colours[resname], linewidth=3, linestyle="--", label= resname + " Inner")
             if bg:
                 plt.plot(df[resname + " Outer"], color=colours[resname], linewidth=3, alpha = 0.10)
+                plt.plot(df[resname + " Inner"], color=colours[resname], linewidth=3, alpha = 0.10)
         else:
             plt.plot(df[resname + " Outer"].rolling(rolling).mean(), linestyle="--", label= resname + " Outer")
+            plt.plot(df[resname + " Inner"].rolling(rolling).mean(), linestyle="--", label= resname + " Inner")
             if bg:
                 plt.plot(df[resname + " Outer"], linewidth=3, alpha = 0.25)
+                plt.plot(df[resname + " Inner"], linewidth=3, alpha = 0.25)
     plt.legend()
-    plt.ylabel("# Lipids")
+    plt.ylabel("Proportion in Leaflet")
     plt.xlabel(x_label)
     if title:
         plt.title(title)
@@ -380,6 +384,6 @@ def csv_to_prop_plot(csv, resnames, rolling=1, bg=False, title=False, colours=Fa
     # print(df_prop)
     df_prop_to_plot(df_prop, resnames, rolling, bg, title, colours, x_label)
 
-    # if out:
-    #     plt.savefig(out)
-    # return(plt)
+    if out:
+        plt.savefig(out)
+    return(plt)
