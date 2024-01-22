@@ -1,3 +1,4 @@
+from scipy.constants import pi, Boltzmann
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -142,7 +143,7 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
 
     universe.universe.trajectory[frame_index]
 
-    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
+    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL CHOL TUBE")))
 
     center = non_water_COG(universe)
 
@@ -224,7 +225,8 @@ def process_trajectory_parallel(universe,  output="dataframe.csv", axis = "z"):
     Perform inner/outer tubule analysis on entire trajectory, given here
     as MDAnalysis universe. Saves as a csv named by variable 'output'
     """
-    resnames = residue_names(universe.select_atoms("not resname W"))
+    resnames = residue_names(universe.select_atoms("not resname W CHOL TUBE"))
+    print(resnames)
 
     run_per_frame = partial(lipids_per_tubule_leaflet_parallel, universe=universe, axis=axis)
 
@@ -387,3 +389,117 @@ def csv_to_prop_plot(csv, resnames, rolling=1, bg=False, title=False, colours=Fa
     if out:
         plt.savefig(out)
     return(plt)
+
+def calc_radius(universe, axis="z"):
+    center = non_water_COG(universe)
+
+    assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
+
+    if axis == "x":
+        tubule_center = [center[1], center[2]]
+        dims = [1,2]
+    elif axis == "y":
+        tubule_center = [center[0], center[2]]
+        dims = [0,2]
+    elif axis == "z":
+        tubule_center = [center[0], center[1]]
+        dims = [0,1]
+
+    bead_dim1 = universe.select_atoms("name PO4").positions[:, dims[0]]
+    bead_dim22 = universe.select_atoms("name PO4").positions[:, dims[1]]
+    beads_points = np.square(np.abs(bead_dim22 - bead_dim1))
+    center_points = abs(tubule_center[1] - tubule_center[0])**2
+    radii = np.sqrt(beads_points + center_points)
+    return(np.average(radii))
+
+def calc_radius_parallel(frame_index, universe, axis="z"):
+    universe.universe.trajectory[frame_index]
+
+    center = non_water_COG(universe)
+
+    assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
+
+    if axis == "x":
+        tubule_center = [center[1], center[2]]
+        dims = [1,2]
+    elif axis == "y":
+        tubule_center = [center[0], center[2]]
+        dims = [0,2]
+    elif axis == "z":
+        tubule_center = [center[0], center[1]]
+        dims = [0,1]
+
+    bead_dim1 = universe.select_atoms("name PO4").positions[:, dims[0]]
+    bead_dim22 = universe.select_atoms("name PO4").positions[:, dims[1]]
+    beads_points = np.square(np.abs(bead_dim22 - bead_dim1))
+    center_points = abs(tubule_center[1] - tubule_center[0])**2
+    radii = np.sqrt(beads_points + center_points)
+    return(np.average(radii))
+
+def run_radius_parallel(universe, axis="z"):
+    run_per_frame = partial(calc_radius_parallel, universe=universe, axis=axis)
+
+    frame_values = np.arange(universe.trajectory.n_frames)
+
+    with Pool(25) as worker_pool:
+        result = worker_pool.map(run_per_frame, frame_values)
+    return(result)
+
+def calc_f(pressure_tube_dir, pressure_bulk, box_l_1, box_l_2):
+
+    pressure_diff = abs(pressure_bulk - pressure_tube_dir)
+
+    force = pressure_diff * box_l_1 * box_l_2
+    return(force)
+
+def calc_kc(force, tube_radius, temperature):
+    kc = (force * tube_radius)/(2*pi*temperature*Boltzmann)
+    return(kc)
+
+
+def calc_f_kc_traj(struct, traj, edr, axis="z"):
+    print("Creating universe from structure and trajectory...")
+    u = mda.Universe(struct, traj)
+    print("Done.")
+    print("Adding auxiliary edr file...")
+    aux = mda.auxiliary.EDR.EDRReader(edr, convert_units=False)
+    print("Done.")
+    print("Adding auxiliary file to universe...")
+    # all_terms = aux.get_data()
+    u.trajectory.add_auxiliary({"time": "Time",
+                                "temperature": "Temperature",
+                                "box_x": "Box-X",
+                                "box_y": "Box-Y",
+                                "box_z": "Box-Z",
+                                "pres_xx": "Pres-XX",
+                                "pres_yy": "Pres-YY",
+                                "pres_zz": "Pres-ZZ",}, aux, convert_units=False)
+    print("Done.")
+    sel = u.atoms.select_atoms("not resname W", updating=True)
+    for ts in u.trajectory[:]:
+        time = u.trajectory.ts.aux.time
+        temperature = u.trajectory.ts.aux.temperature
+        if axis == "x":
+            box_lengths = [u.trajectory.ts.aux.box_y, u.trajectory.ts.aux.box_z]
+            pressure_tube_direction = u.trajectory.ts.aux.pres_xx
+            pressure_bulk = (u.trajectory.ts.aux.pres_yy + u.trajectory.ts.aux.pres_zz)/2
+        elif axis == "y":
+            box_lengths = [u.trajectory.ts.aux.box_x, u.trajectory.ts.aux.box_z]
+            pressure_tube_direction = u.trajectory.ts.aux.pres_yy
+            pressure_bulk = (u.trajectory.ts.aux.pres_yy + u.trajectory.ts.aux.pres_zz)/2
+        elif axis == "z":
+            box_lengths = [(u.trajectory.ts.aux.box_x/1e+9), (u.trajectory.ts.aux.box_y/1e+9)]
+            pressure_tube_direction = u.trajectory.ts.aux.pres_zz
+            pressure_bulk = (u.trajectory.ts.aux.pres_xx + u.trajectory.ts.aux.pres_yy)/2
+        box_x = u.trajectory.ts.aux.box_x
+        # box_y = u.trajectory.ts.aux.box_y
+        # box_z = u.trajectory.ts.aux.box_z
+        # pres_xx = u.trajectory.ts.aux.pres_xx
+        # pres_yy = u.trajectory.ts.aux.pres_yy
+        # pres_zz = u.trajectory.ts.aux.pres_zz
+        force = calc_f(pressure_tube_direction, pressure_bulk, box_lengths[0], box_lengths[1])
+        radius = calc_radius(sel)
+        kc = calc_kc(force, radius, temperature)
+        print("At time {}, box x = {}, kc= {}, force = {}, radius={}".format(time, box_x, kc, force, radius))
+
+        # but we need more sampling... can't just go from the trajectory steps, need all energy frames
