@@ -97,15 +97,37 @@ As outlined in the chapter, pores are *really* permitted via (i) their initial c
 In the respective tutorial folder is a script, generate_pores.py. If you haven't already, enter into this new folder. Then run:
 
 ```
-python create_pore.py -c ../2.eq_nopore/eq_nopore.gro -o create_pore_x.gro --axis x --radius 2.5 -p ../TS2CG/results/topol.top -po modified_x.top --restraints --residues POPC POPE
+python create_pore.py -c ../2.eq_nopore/eq_nopore.gro -o create_pore_x.gro --axis x --radius 2.5 -p ../1.initial/results/topol.top -po modified_x.top --residues POPC POPE
 
-python create_pore.py -c create_pore_x.gro -o create_pore_xy.gro --axis y --radius 2.5 -p modified_xy.top -po modified.1.top --restraints --residues POPC POPE
+python create_pore.py -c create_pore_x.gro -o create_pore_xy.gro --axis y --radius 2.5 -p modified_x.top -po modified_xy.top --restraints --residues POPC POPE
 ```
 
-We're first generating a pore in the x- dimension, then in the y-dimension; both with radius 2.5nm. Since we're not specifying coordinates (dont with the command line flag --coords), 
+We're first generating a pore in the x- dimension, then in the y-dimension; both with radius 2.5nm. Since we're not specifying coordinates (done with the command line flag --coords), they'll automatically be set to the middle of the box - here, at 14.799, 14.799, and 05.000 for x, y, and z, respectively.
 
+One last thing for the sake of being tidy is to use the GROMACS ```gmx editconf``` command to renumber the residues in the new gro file we've just created. Since creation of pores deletes residues and reorganises them in the gro file, naturally the gro file will be slightly unordered - this isn't necessarily a problem, but for the sake of being tidy we should run:
+
+```
+gmx editconf -f create_pore_xy.gro -resnr 1 -o init.gro
+```
+
+And with that, we have our starting structure!
 
 ### **ii)** Define flat-bottomed potentials
+The definition of flat-bottomed potentials (FBPs) is the most hands-on step (and potentially, the most tedious...) of the entire process.
+
+In order to activate an FBP in GROMACS, three steps are required:
+
+1) Creation of a restraints.gro file (which we have just done), which defines the **geometric center of the FBP**
+2) Modification of the molecule's topology file to define the **shape, size and force** of the FBP
+3) Actually activating the FBP during the molecular dynamics run, by defining a flag in the .mdp file.
+
+A more in-depth explanation on restraints files is found in [S.1.](#s1-restraints-file)
+In saying that, a comparison of our structure file ```init.gro```, our restraints file ```restraints.gro```, and the knowledge that we have defined the center of restraint for all pores as being the center of the box at 14.799, 14.799, and 05.000, should it rather clear what we are doing.
+
+
 
 ## 4. Perform production run, holding the pores open
 
+
+
+## S.1. Restraints file

@@ -9,28 +9,28 @@ if not os.path.exists(output):
     os.makedirs(output)
     print("Created output file: " + output)
 
-DOPC_POPC_10 = mda.Universe(root + "DOPC_POPC/r10/production/noW.gro", 
-                 root + "DOPC_POPC/r10/noW.20us.xtc")
+DOPC_POPC_10 = mda.Universe(root + "DOPC_POPC/r10/create_pore/create_pore_out.gro", 
+                 root + "DOPC_POPC/r10/40us.xtc")
 
-DOPC_POPC_20 = mda.Universe(root + "DOPC_POPC/r20/production/noW.gro", 
-                 root + "DOPC_POPC/r20/noW.20us.xtc")
+DOPC_POPC_20 = mda.Universe(root + "DOPC_POPC/r20/create_pore/create_pore_out.gro", 
+                 root + "DOPC_POPC/r20/40us.xtc")
 
-DOPC_POPC_30 = mda.Universe(root + "DOPC_POPC/r30/production/noW.gro", 
-                 root + "DOPC_POPC/r30/noW.20us.xtc")
+DOPC_POPC_30 = mda.Universe(root + "DOPC_POPC/r30/create_pore/create_pore_out.gro", 
+                 root + "DOPC_POPC/r30/40us.xtc")
 
-POPC_POPE_10 = mda.Universe(root + "/POPC_POPE/r10/production/noW.gro", 
-                 root + "POPC_POPE/r10/noW.20us.xtc")
+POPC_POPE_10 = mda.Universe(root + "/POPC_POPE/r10/create_pore/create_pore_out.gro", 
+                 root + "POPC_POPE/r10/40us.xtc")
 
-POPC_POPE_10_l10 = mda.Universe(root + "/POPC_POPE/r10_l10/production_try3/noW.gro", 
-                 root + "POPC_POPE/r10_l10/production_try3/noW.xtc")
+POPC_POPE_10_l10 = mda.Universe(root + "/POPC_POPE/r10_l10/create_pore/create_pore_xy.gro", 
+                 root + "POPC_POPE/r10_l10/40us.xtc")
 
-POPC_POPE_20 = mda.Universe(root + "POPC_POPE/r20/production/noW.gro", 
-                 root + "POPC_POPE/r20/noW.20us.xtc")
+POPC_POPE_20 = mda.Universe(root + "POPC_POPE/r20/create_pore/create_pore_out.gro", 
+                 root + "POPC_POPE/r20/40us.xtc")
 
-POPC_POPE_30 = mda.Universe(root + "POPC_POPE/r30/production/noW.gro", 
-                 root + "POPC_POPE/r30/noW.20us.xtc")
+POPC_POPE_30 = mda.Universe(root + "POPC_POPE/r30/create_pore/create_pore_out.gro", 
+                 root + "POPC_POPE/r30/40us.xtc")
 
-# systems = [DOPC_POPC_10, DOPC_POPC_20, DOPC_POPC_30, POPC_POPE_10, POPC_POPE_20, POPC_POPE_30]
+# systems = [POPC_POPE_10_l10, DOPC_POPC_10, DOPC_POPC_20, DOPC_POPC_30, POPC_POPE_10, POPC_POPE_20, POPC_POPE_30]
 systems = [POPC_POPE_10_l10]
 system_outputs = {DOPC_POPC_10 : "DOPC_POPC_10.csv",
                    DOPC_POPC_20 : "DOPC_POPC_20.csv",

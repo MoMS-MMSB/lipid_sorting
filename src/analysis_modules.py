@@ -14,7 +14,6 @@ def non_water_COG(universe):
     """
     return(universe.select_atoms("not resname W NA CA CL").center_of_geometry(compound="group"))
 
-
 def residue_names(universe):
     """
     return a list of all residue names.
@@ -68,14 +67,54 @@ def martini_lipid_tails(universe, list_of_residues):
                 break
         # print(residue_first_last_atoms)
         residue_atom_dict[residue] = residue_first_last_atoms
-    return(residue_atom_dict)
-    
+    return(residue_atom_dict)  
 
 def distance_between_points(point1, point2):
     """Calculate the distance between two two-dimensional points"""
     assert (type(point1) == list) and (len(point1) == 2)
     assert (type(point2) == list) and (len(point2) == 2)
     return (np.sqrt(((point1[1]-point1[0])**2) + ((point2[1] - point2[0])**2)))
+
+def distance_between_vectors(vector1, vector2):
+    """
+    calculate distance between points for two numpy arrays
+    """
+def total_lipids_per_leaflet(universe, axis="z"):
+    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL CHOL TUBE")))
+    center = non_water_COG(universe)
+    if axis == "x":
+        tubule_center = [center[1], center[2]]
+        delete_column = [0]
+    elif axis == "y":
+        tubule_center = [center[0], center[2]]
+        delete_column = [1]
+    elif axis == "z":
+        tubule_center = np.array([center[0], center[1]])
+        delete_column = [2]
+
+    for resname in residue_atom_dict:
+        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}').positions
+        print(heads)
+        heads = np.delete(heads, delete_column, 1)
+        print(heads)
+        print(tubule_center)
+        print("center-heads...")
+        print(np.abs(tubule_center-heads))
+        print("center-heads**2...")
+        print(np.abs(tubule_center-heads)**2)
+        print("sum(center-heads**2)...")
+        print((np.sum(np.abs(tubule_center-heads)**2, axis=1)))
+        # print("sqrt(sum(center-heads**2)...)")
+        # print(np.sqrt(np.sum(np.abs(tubule_center-heads)**2, axis=1)))
+        # tails = np.zeros(heads.shape)
+        # print(tails)
+        # for tail_name in residue_atom_dict[resname][1]:
+        #     u_tail = universe.select_atoms(f'resname {resname} and name {tail_name}')
+        #     print(u_tail.positions)
+        #     tails = tails +  u_tail.positions
+        # tails = tails/len(residue_atom_dict[resname][1])
+        # print(tails)
+
 
 def lipids_per_tubule_leaflet(universe, axis="z", residue_atom_dict=False, center=False):
     """
@@ -182,9 +221,9 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
 
             head_dist = (distance_between_points(head_coords, tubule_center))
             tail_dist = (distance_between_points(tail_coords, tubule_center))
-            if head_dist > tail_dist:
+            if head_dist > tail_dist+5:
                 outer_total += 1
-            else:
+            elif tail_dist > head_dist+5:
                 inner_total += 1
         overall_totals.append(outer_total)
         overall_totals.append(inner_total)
@@ -202,7 +241,6 @@ def results_to_df(array, resnames):
     df = pd.DataFrame(array,columns=headers)
     df.index += 1
     return(df)
-
 
 def process_trajectory(trajectory, skip=1, output="dataframe.csv", axis = "z"):
     """
@@ -308,7 +346,6 @@ def trajectory_to_plot_jupyter(trajectory, rolling=1, title=False, colours=False
 
     plt.show()
 
-
 def csv_to_plot(csv, resnames, rolling=1, bg=False, title=False, colours=False, index_scaling=1, x_label="Frame", out=False):
     """
     Given a csv file and list of resnames, create dataframes and plots in accordance with
@@ -361,7 +398,7 @@ def df_prop_to_plot(df, resnames, rolling=1, bg=False, title=False, colours=Fals
                 plt.plot(df[resname + " Outer"], color=colours[resname], linewidth=3, alpha = 0.10)
                 plt.plot(df[resname + " Inner"], color=colours[resname], linewidth=3, alpha = 0.10)
         else:
-            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), linestyle="--", label= resname + " Outer")
+            plt.plot(df[resname + " Outer"].rolling(rolling).mean(), linestyle="-", label= resname + " Outer")
             plt.plot(df[resname + " Inner"].rolling(rolling).mean(), linestyle="--", label= resname + " Inner")
             if bg:
                 plt.plot(df[resname + " Outer"], linewidth=3, alpha = 0.25)
@@ -406,11 +443,11 @@ def calc_radius(universe, axis="z"):
         dims = [0,1]
 
     bead_dim1 = universe.select_atoms("name PO4").positions[:, dims[0]]
-    bead_dim22 = universe.select_atoms("name PO4").positions[:, dims[1]]
-    beads_points = np.square(np.abs(bead_dim22 - bead_dim1))
+    bead_dim2 = universe.select_atoms("name PO4").positions[:, dims[1]]
+    beads_points = np.square(np.abs(bead_dim2 - bead_dim1))
     center_points = abs(tubule_center[1] - tubule_center[0])**2
     radii = np.sqrt(beads_points + center_points)
-    return(np.average(radii))
+    return(radii)
 
 def calc_radius_parallel(frame_index, universe, axis="z"):
     universe.universe.trajectory[frame_index]
@@ -455,7 +492,6 @@ def calc_f(pressure_tube_dir, pressure_bulk, box_l_1, box_l_2):
 def calc_kc(force, tube_radius, temperature):
     kc = (force * tube_radius)/(2*pi*temperature*Boltzmann)
     return(kc)
-
 
 def calc_f_kc_traj(struct, traj, edr, axis="z"):
     print("Creating universe from structure and trajectory...")
@@ -503,3 +539,36 @@ def calc_f_kc_traj(struct, traj, edr, axis="z"):
         print("At time {}, box x = {}, kc= {}, force = {}, radius={}".format(time, box_x, kc, force, radius))
 
         # but we need more sampling... can't just go from the trajectory steps, need all energy frames
+
+def calc_f_kc_edr(edr, radius, axis="z", output="energy.csv"):
+    aux = mda.auxiliary.EDR.EDRReader(edr, convert_units=False)
+    all_terms = aux.get_data(["Temperature", "Box-X", "Box-Y", "Box-Z", "Pres-XX", "Pres-YY", "Pres-ZZ"])
+    if axis == "x":
+        box_lengths = [all_terms["Box-Y"]/1e+9, all_terms["Box-Z"]/1e+9]
+        pressure_tube_direction = all_terms["Pres-XX"]
+        pressure_bulk = (all_terms["Pres-YY"] + all_terms["Pres-ZZ"])/2
+    elif axis == "y":
+        box_lengths = [all_terms["Box-X"]/1e+9, all_terms["Box-Z"]/1e+9]
+        pressure_tube_direction = all_terms["Pres-YY"]
+        pressure_bulk = (all_terms["Pres-XX"] + all_terms["Pres-ZZ"])/2
+    elif axis == "z":
+        box_lengths = [all_terms["Box-X"]/1e+9, all_terms["Box-Y"]/1e+9]
+        pressure_tube_direction = all_terms["Pres-ZZ"]
+        pressure_bulk = (all_terms["Pres-XX"] + all_terms["Pres-YY"])/2
+    force = calc_f(pressure_tube_direction, pressure_bulk, box_lengths[0], box_lengths[1]) *100000 # why by 100000? understand units - pascal?
+    kc = calc_kc(force, radius, all_terms["Temperature"])/100
+    print(np.average(pressure_bulk))
+    print(np.average(pressure_tube_direction))
+    print(np.average(box_lengths[0]))
+    print(np.average(box_lengths[1]))
+    print(np.average(force))
+    print(np.average(kc))
+    df = pd.DataFrame({"Time (ns)":all_terms["Time"]/1000,
+                       "Box Dim1 (m)":box_lengths[0],
+                       "Box_Dim2 (m)":box_lengths[1],
+                       "Tube Pressure (bar)": pressure_tube_direction,
+                       "Bulk Pressure (bar)":pressure_bulk,
+                       "Force (N)":force,
+                       "Bending Rigidity Kc (kBT)":kc})
+    print(df)
+    df.to_csv(output)

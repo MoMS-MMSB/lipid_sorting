@@ -137,14 +137,12 @@ def reorder_gro(input_gro, mol_list, output_gro="renumbered.gro"):
     writer = open(output_gro, 'w')
     with open(input_gro, 'r') as f:
         for line in f.readlines()[:2]:
-            print(line)
             writer.write(line)
 
     for mol in mol_list:
         with open(input_gro, 'r') as f:
             for line in f.readlines()[2:-1]:
-                if mol in line: #DO
-                    print(line)
+                if mol in line:
                     writer.write(line)
 
     with open(input_gro, 'r') as f:
