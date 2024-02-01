@@ -41,7 +41,7 @@ if args.renumber == True:
 
 # 2. Generate Topology
 if args.topology:
-    pore_modules.rewrite_top(args.topology, pore_modules.num_unique_molecules(args.output, args.residues), args.top_output)
+    pore_modules.rewrite_top(args.topology, pore_modules.num_unique_molecules(args.output, pore_modules.mol_list(args.output)), args.top_output)
 
 # 3. Generate Restraints
 if args.restraints:

@@ -110,6 +110,18 @@ gmx editconf -f create_pore_xy.gro -resnr 1 -o init.gro
 
 And with that, we have our starting structure!
 
+We also quick need an index file so that we can later do seperate temperature coupling for the membrane and solvent. Run the following command:
+```
+gmx make_ndx -f init.gro << EOF
+del 0-9
+r POPC POPE
+r W
+name 0 Membrane
+name 1 Solvent
+q
+EOF
+```
+
 ### **ii)** Define flat-bottomed potentials
 The definition of flat-bottomed potentials (FBPs) is the most hands-on step (and potentially, the most tedious...) of the entire process.
 
@@ -156,12 +168,21 @@ We also need to reference the correct .itp in the system topology file, as oppos
 ```
 cp modified_xy.top system.top
 ```
-delete the line "TK"
+delete the line `#include "{some_path}/top/martini_v3.0.0_phospholipids_1.itp`
 
 And replace it with `#include m3_POPC_POPE_pore.itp`
 ## 4. Perform production run, holding the pores open
+Now, to run the full production run. Move up a level, and create a folder called 4.production/
 
+Change into this folder. In the corresponding tutorial folder, you'll find an .mdp ready to run, which is a version similar to that used in the book chapter, named `c-rescale_prod_posres.mdp`.
 
+Two things are extremely important here:
+1) Line #20 `define                   = -DPOSRES_PL`; this is where we activate the FBP as defined in the .itp file with the if statement; it needs a "-D" added in front, so "POSRES" becomes "-DPOSRES".
+2) Line #105 `compressibility          = 3e-4 0`. Since we are using semiisotropic pressure coupling, the first value (3e-4) is the compressibility in x and y, and the second (0) is the compressibility in z. By switching this to 0, the z-dimension is essentially fixed; since this is the direction in which our tubule is periodic, it fixes our tubule at desired length.
+
+With the correct .mdp file, we're ready to run the production run with FBPs.
+
+## 5. Run Analysis
 
 ## S1. Restraints file
 

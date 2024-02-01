@@ -1,0 +1,109 @@
+; STANDARD MD INPUT OPTIONS FOR MARTINI 3.x
+;
+; for use with GROMACS 5
+
+; TIMESTEP IN MARTINI 
+; Default timestep of 20 fs. 
+
+integrator               = md
+dt                       = 0.02
+nsteps                   = 500000000  ; 10 us 
+
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstlog                   = 50000 ; 1 ns
+nstxout-compressed       = 500000
+compressed-x-precision   = 10000
+nstcalcenergy            = 1000
+nstenergy                = 1000
+define                   = -DPOSRES_PL
+
+; NONBONDED INTERACTIONS AND NEIGHBOUR LISTS 
+; To achieve faster simulations in combination with the Verlet-neighborlist
+; scheme, Martini can be simulated with a straight cutoff. In order to 
+; do so, the cutoff distance is reduced 1.1 nm. 
+; Neighbourlist length should be optimized depending on your hardware setup:
+; updating every 20 steps (nstlist = 20) should be fine for classic systems,
+; while updating every 30-40 steps might be better for GPU based systems.
+;
+; Improper neighbor list settings result in artificial pressure oscillations and
+; violation of spatial isotropy, so neighbourlist changes away from the provided default values
+; should be validated extensively. See "Neighbor List Artifacts in Molecular Dynamics Simulations" by Kim et al. 
+; 
+; To avoid this, the verlet-buffer-tolerance is explicitly disabled by setting it to -1.
+; rlist should be at least 1.35 nm (with nstlist = 20 and rcoulomb/rvdw = 1.1).
+; To use nstlist > 20, rlist must be further increased and tested.
+; This helps to reduce the artificially large undulation amplitude of Martini membranes.
+; To further minimize the artifact, the following should be true 
+; nsttcouple = nstpcouple = n * nstlist, where n is positive integer.
+;
+; Coulomb interactions are treated using a reaction-field. PME can potentially
+; be used sometimes resulting in slightly better properties but should be validated. 
+; Please realize that electrostatic interactions in the Martini model are 
+; not considered to be very accurate to begin with, especially as the 
+; screening in the system is set to be uniform across the system with 
+; a screening constant of 15. When using PME, please make sure your 
+; system properties are still reasonable.
+
+cutoff-scheme            = Verlet
+nstlist                  = 20
+nsttcouple               = 20
+nstpcouple               = 20
+rlist                    = 1.35
+verlet-buffer-tolerance  = -1
+ns_type                  = grid
+pbc                      = xyz
+
+coulombtype              = reaction-field 
+rcoulomb                 = 1.1
+epsilon_r                = 15
+epsilon_rf               = 0
+vdw_type                 = cutoff  
+vdw-modifier             = Potential-shift-verlet
+rvdw                     = 1.1
+
+; Temperature coupling     
+; The recommended thermostat is the velocity rescale (V-rescale) thermostat
+; using a coupling constant of 1 ps.
+; It is recommended to couple individual groups in your system separately.
+
+tcoupl                   = v-rescale 
+tc-grps                  = Solvent Membrane 
+tau_t                    = 1.0 1.0  
+ref_t                    = 300 300
+
+gen_vel                  = yes
+gen_temp                 = 300
+gen_seed                 = -1
+
+; The recommended barostat is the stochastic cell rescaling barostat (c-rescale) 
+; due to its exponential relaxation property. Martini lipids are benchmarked 
+; with a coupling constant of 4 ps and compressibility 3e-4.
+; C-rescale can be used for both equilibration and production simulations 
+; (https://doi.org/10.1063/5.0020514). 
+; For bilayer systems, the pressure should maintained using semiisotropic coupling.
+; As of GROMACS 2023, c-rescale is not implemented for full anisotropic systems, 
+; but will likely be implemented (https://gitlab.com/gromacs/gromacs/-/merge_requests/3720).
+; For now, full anisotropic coupling can be done using Berendsen barostat, even though 
+; the sampled ensemble is theoretically not NPT. The PR barostat is not recommended for 
+; crystal-like systems where crystal breaking (box elongation resulting in breaking) 
+; has been observed due to pressure oscillations. 
+
+; Pressure coupling     
+Pcoupl                   = c-rescale
+Pcoupltype               = semiisotropic
+tau_p                    = 4.0 
+ref_p                    = 1.0 1.0
+compressibility          = 3e-4 0
+
+; Center of mass removal
+comm-mode                = Linear
+comm-grps                = Solvent Membrane
+nstcomm                  = 100
+
+; MARTINI and CONSTRAINTS 
+constraints              = none 
+constraint_algorithm     = Lincs
+
+refcoord_scaling         = all
