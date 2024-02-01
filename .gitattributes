@@ -1,0 +1,6 @@
+*.gro
+*.xtc
+*.csv
+*.png
+*.xcf
+*.ipynb linguist-language=Python
