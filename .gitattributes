@@ -4,5 +4,7 @@
 *.png
 *.xcf
 *.ipynb linguist-language=Python
-example_results/
-figures/
+example_results/*
+figures/*
+Tutorial/*
+.roff
