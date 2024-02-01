@@ -1,0 +1,62 @@
+                      :-) GROMACS - gmx grompp, 2022.5 (-:
+
+Executable:   /softwares/gromacs/2022.5/bin/gmx
+Data prefix:  /softwares/gromacs/2022.5
+Working dir:  /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial/1.initial/work/a9/a4823b33b3f449be826cdceb29fef8
+Command line:
+  gmx grompp -c input.gro -p input.top -f em.mdp -o em.tpr -maxwarn 1
+
+Ignoring obsolete mdp entry 'ns_type'
+Number of degrees of freedom in T-Coupling group rest is 227370.00
+
+GROMACS reminds you: "All creative people want to do the unexpected" (Hedy Lamarr)
+
+Setting the LD random seed to -168528914
+
+Generated 844 of the 356590 non-bonded parameter combinations
+
+Excluding 1 bonded neighbours molecule type 'POPC'
+
+Excluding 1 bonded neighbours molecule type 'POPE'
+
+Excluding 1 bonded neighbours molecule type 'POPC'
+
+Excluding 1 bonded neighbours molecule type 'POPE'
+
+Excluding 1 bonded neighbours molecule type 'W'
+Analysing residue names:
+There are: 56079      Other residues
+Analysing residues not classified as Protein/DNA/RNA/Water and splitting into groups...
+
+This run will generate roughly 6 Mb of data
+                      :-) GROMACS - gmx mdrun, 2022.5 (-:
+
+Executable:   /softwares/gromacs/2022.5/bin/gmx
+Data prefix:  /softwares/gromacs/2022.5
+Working dir:  /data2/jackson/lipid_sorting/lipid_sorting_in_tubules/Tutorial/1.initial/work/a9/a4823b33b3f449be826cdceb29fef8
+Command line:
+  gmx mdrun -s em.tpr -c em.gro -nt 16 -rdd 1.6
+
+Reading file em.tpr, VERSION 2022.5 (single precision)
+Using 1 MPI thread
+Using 16 OpenMP threads 
+
+
+NOTE: The number of threads is not equal to the number of (logical) cpus
+      and the -pin option is set to auto: will not pin threads to cpus.
+      This can lead to significant performance degradation.
+      Consider using -pin on (and -pinoffset in case you run multiple jobs).
+
+Steepest Descents:
+   Tolerance (Fmax)   =  3.00000e+02
+   Number of steps    =        10000
+
+writing lowest energy coordinates.
+
+Steepest Descents converged to Fmax < 300 in 179 steps
+Potential Energy  = -1.8611350e+06
+Maximum force     =  2.6735693e+02 on atom 47670
+Norm of force     =  7.0336292e+00
+
+GROMACS reminds you: "Therefore, things must be learned only to be unlearned again or, more likely, to be corrected." (Richard Feynman)
+

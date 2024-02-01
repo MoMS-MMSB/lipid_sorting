@@ -11,9 +11,7 @@ is a fork of a setup pipeline which can be used to generate tubules of desired s
 composition.
 
 Contained in the folder src/ is a modules file in python called pore_modules.py.
-In here, you can find all the required functions to create a pore, update the GROMACS topology, and generate a .gro file for position restraints. Following creation of this file, the .itp file itself will need to be modified - for now, examples are provided; expect some further explanations in future updates. Unfortunately, modification of the .itp file for the pore restraints is the most "hands-on" step, and is highly system specific.
-
-An example of this is found in the script **SCRIPT**
+In here, you can find all the required functions to create a pore, update the GROMACS topology, and generate a .gro file for position restraints. Following creation of this file, the .itp file itself will need to be modified, which is the only step which requires any serious user intervention. An entire, worked example is provided in the [tutorial](#tutorial), along with all possible input and output files.
 
 Following generation of all of these files, you will be ready to run a production run. Depending on the system size, these can take considerable amounts of time to run, especially locally. Use of dedicated computing resources such as a cluster or supercomputer are desireable, however if they are inaccessible, consider sticking to smaller systems and shorter simulations. 
 
@@ -21,11 +19,11 @@ Once the production run has completed, you will need to run the analysis. The re
 
 process_trajectories.py is the example script used to run the analysis on one or several systems; here, showing the exact commands used to process the systems from the publication. It is recommended to remove water from the .gro and trajectory files.
 
-## Files
-example_results contain the results for the figures used in the publication. Likewise, Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd. 
+## Folders and Files
+example_results/ contain the results for the figures used in the publication. Likewise, Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd. 
 
+---
 # TUTORIAL
-
 The following protocol will allow you to generate *your own* tubules from scratch - all you know is your desired composition, and nothing else. You can follow the exact steps in the tutorial, for which the files are included; or, you can change the composition of the tubule yourself, and try your own system. The protocol remains the same.
 
 If you end up using this tutorial, you should cite our book chapter (coming soon) and also TS2CG, the paper for which is found [here](https://rdcu.be/drEQr): 
@@ -41,7 +39,7 @@ Once you've cloned the repository and created the environment, we can begin. Act
  conda activate lipid-sorting
  ```
 
-## 1. Run the pipeline
+## 1. Initial setup with TS2CG pipeline
 Create a new folder, and enter. For this tutorial, we will call this folder 1.initial/
 
 Create a file called generate.str, which will contain all the important information the creation of your tubule.
@@ -149,7 +147,6 @@ Modification of the .itp file needs to occur on a system-by-system basis, and oc
        11      2      7  -2.5   5000
        12      2      7  -2.5   5000
 #endif
-
 ```
 Here, we are defining an FBP with an "if" statement. This if statement activates the FBPs we define - two, here; one for each dimension in which we have pores.
 

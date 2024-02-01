@@ -1,0 +1,38 @@
+==============  PCG membrane builder: from function to membrane ======================
+****************** CG Membrane builder ******************   
+******************  Version:  1.1 ****************** 
+==========================================================================================================
+[Lipids List]
+Domain 0
+POPC    0.5  0.5   0.70
+POPE    0.5  0.5   0.70
+End
+
+[Shape Data]
+ShapeType Cylinder
+vesicle will be made 
+--> Generating molecule types from  generate.str  file
+--> Note: the lipids will be generated from < Martini Map CG> Lipid Library, of version:  Martini 3
+--> This library contains 128 lipid types 
+--> Note: the total upper monolayer area is 691.15 and the total lower monolayer area is 565.487
+ now is time to add the lipids 
+ Number of the domains defined in the input file  1
+***************************  we aim to generate  ********************** 
+*     For domain with ID 0 
+*     493  POPC     
+*     493  POPE     
+   in the upper monolayer 
+*     For domain with ID 0 
+*     403  POPC     
+*     403  POPE     
+   in the lower monolayer 
+*************************** Number of created Lipids,   ********************** 
+*     For domain with ID 0 
+*     493  POPC     
+*     493  POPE     
+   in the upper monolayer 
+*     For domain with ID 0 
+*     403  POPC     
+*     403  POPE     
+   in the lower monolayer 
+ HELLO
