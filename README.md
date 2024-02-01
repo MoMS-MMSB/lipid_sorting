@@ -121,13 +121,90 @@ In order to activate an FBP in GROMACS, three steps are required:
 2) Modification of the molecule's topology file to define the **shape, size and force** of the FBP
 3) Actually activating the FBP during the molecular dynamics run, by defining a flag in the .mdp file.
 
-A more in-depth explanation on restraints files is found in [S.1.](#s1-restraints-file)
+A more in-depth explanation on restraints files is found in [S1.](#s1-restraints-file)
 In saying that, a comparison of our structure file ```init.gro```, our restraints file ```restraints.gro```, and the knowledge that we have defined the center of restraint for all pores as being the center of the box at 14.799, 14.799, and 05.000, should it rather clear what we are doing.
 
+Modification of the .itp file needs to occur on a system-by-system basis, and occurs based on the FBP requirements for a given system. Included here is an .itp which contains only the lipids POPC and POPE, with a section added:
 
+```
+#ifdef POSRES_PL
+; Flat-bottomed position restraint for each PL
+[ position_restraints ]
+; numatoms  functype  g   r   k
+;                       (nm) (kJ mol−1nm−2)
+       05      2      6  -2.5   5000
+       06      2      6  -2.5   5000
+       07      2      6  -2.5   5000
+       08      2      6  -2.5   5000
+       09      2      6  -2.5   5000
+       10      2      6  -2.5   5000
+       11      2      6  -2.5   5000
+       12      2      6  -2.5   5000
+       05      2      7  -2.5   5000
+       06      2      7  -2.5   5000
+       07      2      7  -2.5   5000
+       08      2      7  -2.5   5000
+       09      2      7  -2.5   5000
+       10      2      7  -2.5   5000
+       11      2      7  -2.5   5000
+       12      2      7  -2.5   5000
+#endif
 
+```
+Here, we are defining an FBP with an "if" statement. This if statement activates the FBPs we define - two, here; one for each dimension in which we have pores.
+
+For a longer explanation of this section, consult [S2.](#s2-fbps-in-the-topology-file), which explains each column.
+
+We also need to reference the correct .itp in the system topology file, as opposed to the old one. Run:
+```
+cp modified_xy.top system.top
+```
+delete the line "TK"
+
+And replace it with `#include m3_POPC_POPE_pore.itp`
 ## 4. Perform production run, holding the pores open
 
 
 
-## S.1. Restraints file
+## S1. Restraints file
+
+## S2. FBPs in the topology file
+Consider this section in the topology file for both POPC and POPE:
+```
+#ifdef POSRES_PL
+; Flat-bottomed position restraint for each PL
+[ position_restraints ]
+; numatoms  functype  g   r   k
+;                       (nm) (kJ mol−1nm−2)
+       05      2      6  -2.5   5000
+       06      2      6  -2.5   5000
+       07      2      6  -2.5   5000
+       08      2      6  -2.5   5000
+       09      2      6  -2.5   5000
+       10      2      6  -2.5   5000
+       11      2      6  -2.5   5000
+       12      2      6  -2.5   5000
+       05      2      7  -2.5   5000
+       06      2      7  -2.5   5000
+       07      2      7  -2.5   5000
+       08      2      7  -2.5   5000
+       09      2      7  -2.5   5000
+       10      2      7  -2.5   5000
+       11      2      7  -2.5   5000
+       12      2      7  -2.5   5000
+#endif
+
+```
+Here, column one denotes the bead/atom number to which the FBP is applied. Both POPC and POPE have 12 beads, but we don't apply the FBP to the first four, which correspond to the lipid heads; this is how we allow the lipids to sort via flip-flop.
+
+The second column defines the function type: for ```[ position_restraints ]```, function type 2 refers to a FBP, simple!
+
+The next column refers to the **geometry** of the FBP. You will notice that we are applying two types of FBP, then; one of type 6 and one of type 7. Type 6 refers to a cylinder which has it's length in the x-dimension, and type 7 is a cylinder with length in y. For more information about possible geomtries, consult the [GROMACS manual](https://manual.gromacs.org/current/reference-manual/functions/restraints.html#flat-bottomed-position-restraints).
+
+The center of **both** of these tubules comes from the center of geometry defined on the particles in the ```restraints.gro``` file. 
+
+> Note: In my experience, this is where things most often go wrong: oftentimes, my systems explode because I've missed an atom or so in the restraints file, defining it's coordinates elsewhere, at which point GROMACS applies the massive FBP force penalty for the atom being out of place, destroying everything. If in doubt, make sure that every single instance of a molecule with FBPs defined has the restraint coordinates correctly specified in `restraints.gro`!
+
+The next column defines the **radius** of the FBP. Here, we're using `-2.5` - the minus sign denotes an **inverse** FBP, keeping all particles outside of the cylinder's radius, as opposed to inside.
+
+Lastly, we have the column denoting the force constant k(kJ/mol^-1/nm^2), applied to any 
