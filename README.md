@@ -1,6 +1,9 @@
 # LIPID SORTING IN TUBULES
 
 ![](figures/Renders/POPC_POPE_r10_l10_pore/x_110_5deg_dof_notrj.gif)
+[![Powered by MDAnalysis](https://img.shields.io/badge/powered%20by-MDAnalysis-orange.svg?logoWidth=16&logo=data:image/x-icon;base64,AAABAAEAEBAAAAEAIAAoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJD+XwCY/fEAkf3uAJf97wGT/a+HfHaoiIWE7n9/f+6Hh4fvgICAjwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACT/yYAlP//AJ///wCg//8JjvOchXly1oaGhv+Ghob/j4+P/39/f3IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJH8aQCY/8wAkv2kfY+elJ6al/yVlZX7iIiI8H9/f7h/f38UAAAAAAAAAAAAAAAAAAAAAAAAAAB/f38egYF/noqAebF8gYaagnx3oFpUUtZpaWr/WFhY8zo6OmT///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgICAn46Ojv+Hh4b/jouJ/4iGhfcAAADnAAAA/wAAAP8AAADIAAAAAwCj/zIAnf2VAJD/PAAAAAAAAAAAAAAAAICAgNGHh4f/gICA/4SEhP+Xl5f/AwMD/wAAAP8AAAD/AAAA/wAAAB8Aov9/ALr//wCS/Z0AAAAAAAAAAAAAAACBgYGOjo6O/4mJif+Pj4//iYmJ/wAAAOAAAAD+AAAA/wAAAP8AAABhAP7+FgCi/38Axf4fAAAAAAAAAAAAAAAAiIiID4GBgYKCgoKogoB+fYSEgZhgYGDZXl5e/m9vb/9ISEjpEBAQxw8AAFQAAAAAAAAANQAAADcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjo6Mb5iYmP+cnJz/jY2N95CQkO4pKSn/AAAA7gAAAP0AAAD7AAAAhgAAAAEAAAAAAAAAAACL/gsAkv2uAJX/QQAAAAB9fX3egoKC/4CAgP+NjY3/c3Nz+wAAAP8AAAD/AAAA/wAAAPUAAAAcAAAAAAAAAAAAnP4NAJL9rgCR/0YAAAAAfX19w4ODg/98fHz/i4uL/4qKivwAAAD/AAAA/wAAAP8AAAD1AAAAGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALGxsVyqqqr/mpqa/6mpqf9KSUn/AAAA5QAAAPkAAAD5AAAAhQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkUFBSuZ2dn/3V1df8uLi7bAAAATgBGfyQAAAA2AAAAMwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB0AAADoAAAA/wAAAP8AAAD/AAAAWgC3/2AAnv3eAJ/+dgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9AAAA/wAAAP8AAAD/AAAA/wAKDzEAnP3WAKn//wCS/OgAf/8MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIQAAANwAAADtAAAA7QAAAMAAABUMAJn9gwCe/e0Aj/2LAP//AQAAAAAAAAAA)](https://www.mdanalysis.org)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
+
 
 ## Introduction
 Coming soon! Once this gets published, I can write more here :)
@@ -110,7 +113,7 @@ gmx editconf -f create_pore_xy.gro -resnr 1 -o init.gro
 
 And with that, we have our starting structure!
 
-We also quick need an index file so that we can later do seperate temperature coupling for the membrane and solvent. Run the following command:
+We also need to quickly make an index file so that we can later do seperate temperature coupling for the membrane and solvent. Run the following command:
 ```
 gmx make_ndx -f init.gro << EOF
 del 0-9
@@ -185,7 +188,46 @@ With the correct .mdp file, we're ready to run the production run with FBPs.
 ## 5. Run Analysis
 
 ## S1. Restraints file
+The Restraints file is a .gro file almost identical to the input structure file, but the x/y/z coordinates of each molecule are replaced with the x/y/z coordinates of the geometric center of the restraint in which we are defining.
 
+Consider our input structure file, in `Tutorial/3.create_pore/init.gro`:
+
+```
+Expect a large membrane in water
+71260
+    1POPC   NC3    1   8.872  23.737   6.103 -0.0577 -0.1469 -0.0486
+    1POPC   PO4    2   8.643  24.027   5.954 -0.1412 -0.0939 -0.3024
+    1POPC   GL1    3   8.601  23.762   5.640  0.4032  0.3497 -0.2360
+    1POPC   GL2    4   8.358  23.640   5.834  0.2659  0.1622 -0.0877
+    1POPC   C1A    5   8.837  23.397   5.617 -0.0925  0.1169 -0.0334
+...
+55606W        W71259  10.673  25.982   5.496  0.0510  0.0486 -0.2671
+55607W        W71260  22.924  23.116   3.672  0.0720  0.0694 -0.1156
+  29.59805  29.59805  10.00000
+```
+... and compare it to our corresponding restraints file in `Tutorial/3.create_pore/restraints.gro`:
+```
+Expect a large membrane in water
+71260
+    1POPC   NC3    1  14.799  14.799  05.000
+    1POPC   PO4    2  14.799  14.799  05.000
+    1POPC   GL1    3  14.799  14.799  05.000
+    1POPC   GL2    4  14.799  14.799  05.000
+    1POPC   C1A    5  14.799  14.799  05.000
+...
+55975W        W75687  10.673  25.982   5.496  0.0510  0.0486 -0.2671
+55976W        W75688  22.924  23.116   3.672  0.0720  0.0694 -0.1156
+  29.59805  29.59805  10.00000
+```
+You will notice that the last six columns of each line in the original file have been replaced with three in the restraints.gro file. In the original file, the first three of these columns are the x/y/z position of the corresponding atom, while the last three are the velocities in each direction (more information about GROMACS' (**very strict**) .gro file format can be found [here](https://manual.gromacs.org/archive/5.0.3/online/gro.html)).
+
+In the restraints file, all we need are three values, the geometric center of the FBP *applied to that molecule*. Here, we define it as half the center of the box, for the sake of convenience (rounding to 3 decimal places to obey GROMACS' string formatting). Since we want to define a pore, we use the same geometry for all implicated molecules; in theory, one could be tricky here and set a different geometry for each, or several different geometries... but this is rather advanced, and not needed here.
+
+FBPs are fickle, and can cause many problems, pretty much always due to user error (in my experience). This is understandable, since it requires manipulation of several files.
+
+The reason we delete molecules in the earlier step is so that we can immediately apply an FBP with a very high force constant without crashing the system. If we hadn't deleted molecules, they would instead be subject to a FBP which immediately applies a large force constant, pushing them rapidly out of the pore region and almost certainly crashing the system.
+
+> **If your system is crashing, I am willing to bet this is what is happening**. You have likely defined a flat bottom potential in a region where several atoms or molecules already are, and they are immediately accelerated out pf position. blowing up your simulation. The easiest way to understanding what is happening is to use software such as VMD to visualise your system, and understand where your FBP(s) lie, and see if any stray molecules may cause you any problems.
 ## S2. FBPs in the topology file
 Consider this section in the topology file for both POPC and POPE:
 ```
@@ -221,7 +263,7 @@ The next column refers to the **geometry** of the FBP. You will notice that we a
 
 The center of **both** of these tubules comes from the center of geometry defined on the particles in the ```restraints.gro``` file. 
 
-> Note: In my experience, this is where things most often go wrong: oftentimes, my systems explode because I've missed an atom or so in the restraints file, defining it's coordinates elsewhere, at which point GROMACS applies the massive FBP force penalty for the atom being out of place, destroying everything. If in doubt, make sure that every single instance of a molecule with FBPs defined has the restraint coordinates correctly specified in `restraints.gro`!
+> Again, in my experience, this is where things most often go wrong. If in doubt, make sure that every single instance of a molecule with FBPs defined has the restraint coordinates correctly specified in `restraints.gro`, and try to understand how they relate to the geomtry defined in the .itp!
 
 The next column defines the **radius** of the FBP. Here, we're using `-2.5` - the minus sign denotes an **inverse** FBP, keeping all particles outside of the cylinder's radius, as opposed to inside.
 
