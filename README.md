@@ -22,8 +22,8 @@ Once the production run has completed, you will need to run the analysis. The re
 
 process_trajectories.py is the example script used to run the analysis on one or several systems; here, showing the exact commands used to process the systems from the publication. It is recommended to remove water from the .gro and trajectory files.
 
-## Folders and Files
-example_results/ contain the results for the figures used in the publication. Likewise, Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd. 
+## Figures
+Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd.
 
 ---
 # TUTORIAL
@@ -186,6 +186,37 @@ Two things are extremely important here:
 With the correct .mdp file, we're ready to run the production run with FBPs.
 
 ## 5. Run Analysis
+
+Assuming your production run has complete, or you are simply following with the files provided, we are ready for the final step: analysis.
+
+Many functions are provided in this repository, but the scripts in folder 5.analysis/ use the most important.
+
+First, we need to process the data:
+
+```
+python process_trajectory.py -f ../4.production/production.xtc -s ../4.production/production.gro -e ../4.production/production.edr
+```
+
+This should only take a couple of minutes for this system. Here, we are taking three sources of input: the structure (.gro) file, the trajectory (.xtc/.trr) file, and the energy (.edr) file.
+
+(Unfortunately, the .edr file is too big for GitHub... nonetheless, the outputs are included!)
+
+It returns three .csv files: leaflets.csv, containing the information on the proportion of lipids per leaflets, radius.csv, showing the radius per trajectory frame, and force.csv, which calculates the contractive force along the tubule axis. 
+
+Once it has completed, you can then run:
+
+```
+python sorting_figure.py
+```
+
+Which will return three plots, as seen here:
+![](Tutorial/5.analysis/analysis.png)
+
+And with that, we're done! For more information about the code, please consult the modules themselves, under src/analysis_modules or src/pore_modules.
+
+If you have any questions or feedback on this tutorial, or the code as a whole, please raise an issue on GitHub, or otherwise contact jackson.crowley@ibcp.fr
+
+Thank you for following along!
 
 ## S1. Restraints file
 The Restraints file is a .gro file almost identical to the input structure file, but the x/y/z coordinates of each molecule are replaced with the x/y/z coordinates of the geometric center of the restraint in which we are defining.

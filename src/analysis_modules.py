@@ -467,8 +467,8 @@ def calc_radius_parallel(frame_index, universe, axis="z"):
         dims = [0,1]
 
     bead_dim1 = universe.select_atoms("name PO4").positions[:, dims[0]]
-    bead_dim22 = universe.select_atoms("name PO4").positions[:, dims[1]]
-    beads_points = np.square(np.abs(bead_dim22 - bead_dim1))
+    bead_dim2 = universe.select_atoms("name PO4").positions[:, dims[1]]
+    beads_points = np.square(np.abs(bead_dim2 - bead_dim1))
     center_points = abs(tubule_center[1] - tubule_center[0])**2
     radii = np.sqrt(beads_points + center_points)
     return(np.average(radii))
@@ -484,63 +484,12 @@ def run_radius_parallel(universe, axis="z"):
 
 def calc_f(pressure_tube_dir, pressure_bulk, box_l_1, box_l_2):
 
-    pressure_diff = abs(pressure_bulk - pressure_tube_dir)
+    pressure_diff = pressure_bulk - pressure_tube_dir
 
     force = pressure_diff * box_l_1 * box_l_2
     return(force)
 
-def calc_kc(force, tube_radius, temperature):
-    kc = (force * tube_radius)/(2*pi*temperature*Boltzmann)
-    return(kc)
-
-def calc_f_kc_traj(struct, traj, edr, axis="z"):
-    print("Creating universe from structure and trajectory...")
-    u = mda.Universe(struct, traj)
-    print("Done.")
-    print("Adding auxiliary edr file...")
-    aux = mda.auxiliary.EDR.EDRReader(edr, convert_units=False)
-    print("Done.")
-    print("Adding auxiliary file to universe...")
-    # all_terms = aux.get_data()
-    u.trajectory.add_auxiliary({"time": "Time",
-                                "temperature": "Temperature",
-                                "box_x": "Box-X",
-                                "box_y": "Box-Y",
-                                "box_z": "Box-Z",
-                                "pres_xx": "Pres-XX",
-                                "pres_yy": "Pres-YY",
-                                "pres_zz": "Pres-ZZ",}, aux, convert_units=False)
-    print("Done.")
-    sel = u.atoms.select_atoms("not resname W", updating=True)
-    for ts in u.trajectory[:]:
-        time = u.trajectory.ts.aux.time
-        temperature = u.trajectory.ts.aux.temperature
-        if axis == "x":
-            box_lengths = [u.trajectory.ts.aux.box_y, u.trajectory.ts.aux.box_z]
-            pressure_tube_direction = u.trajectory.ts.aux.pres_xx
-            pressure_bulk = (u.trajectory.ts.aux.pres_yy + u.trajectory.ts.aux.pres_zz)/2
-        elif axis == "y":
-            box_lengths = [u.trajectory.ts.aux.box_x, u.trajectory.ts.aux.box_z]
-            pressure_tube_direction = u.trajectory.ts.aux.pres_yy
-            pressure_bulk = (u.trajectory.ts.aux.pres_yy + u.trajectory.ts.aux.pres_zz)/2
-        elif axis == "z":
-            box_lengths = [(u.trajectory.ts.aux.box_x/1e+9), (u.trajectory.ts.aux.box_y/1e+9)]
-            pressure_tube_direction = u.trajectory.ts.aux.pres_zz
-            pressure_bulk = (u.trajectory.ts.aux.pres_xx + u.trajectory.ts.aux.pres_yy)/2
-        box_x = u.trajectory.ts.aux.box_x
-        # box_y = u.trajectory.ts.aux.box_y
-        # box_z = u.trajectory.ts.aux.box_z
-        # pres_xx = u.trajectory.ts.aux.pres_xx
-        # pres_yy = u.trajectory.ts.aux.pres_yy
-        # pres_zz = u.trajectory.ts.aux.pres_zz
-        force = calc_f(pressure_tube_direction, pressure_bulk, box_lengths[0], box_lengths[1])
-        radius = calc_radius(sel)
-        kc = calc_kc(force, radius, temperature)
-        print("At time {}, box x = {}, kc= {}, force = {}, radius={}".format(time, box_x, kc, force, radius))
-
-        # but we need more sampling... can't just go from the trajectory steps, need all energy frames
-
-def calc_f_kc_edr(edr, radius, axis="z", output="energy.csv"):
+def calc_force_edr(edr, axis="z", output="energy.csv", verbose=False):
     aux = mda.auxiliary.EDR.EDRReader(edr, convert_units=False)
     all_terms = aux.get_data(["Temperature", "Box-X", "Box-Y", "Box-Z", "Pres-XX", "Pres-YY", "Pres-ZZ"])
     if axis == "x":
@@ -556,19 +505,21 @@ def calc_f_kc_edr(edr, radius, axis="z", output="energy.csv"):
         pressure_tube_direction = all_terms["Pres-ZZ"]
         pressure_bulk = (all_terms["Pres-XX"] + all_terms["Pres-YY"])/2
     force = calc_f(pressure_tube_direction, pressure_bulk, box_lengths[0], box_lengths[1]) *100000 # why by 100000? understand units - pascal?
-    kc = calc_kc(force, radius, all_terms["Temperature"])/100
-    print(np.average(pressure_bulk))
-    print(np.average(pressure_tube_direction))
-    print(np.average(box_lengths[0]))
-    print(np.average(box_lengths[1]))
-    print(np.average(force))
-    print(np.average(kc))
     df = pd.DataFrame({"Time (ns)":all_terms["Time"]/1000,
                        "Box Dim1 (m)":box_lengths[0],
                        "Box_Dim2 (m)":box_lengths[1],
                        "Tube Pressure (bar)": pressure_tube_direction,
                        "Bulk Pressure (bar)":pressure_bulk,
-                       "Force (N)":force,
-                       "Bending Rigidity Kc (kBT)":kc})
-    print(df)
+                       "Force (N)":force})
+    if verbose:
+        df = pd.DataFrame({"Time (ns)":all_terms["Time"]/1000,
+                            "Box Dim1 (m)":box_lengths[0],
+                            "Box_Dim2 (m)":box_lengths[1],
+                            "Tube Pressure (bar)": pressure_tube_direction,
+                            "Bulk Pressure (bar)":pressure_bulk,
+                            "Force (N)":force})
+    else:
+        df = pd.DataFrame({"Time (ns)":all_terms["Time"]/1000,
+                            "Force (N)":force})        
+
     df.to_csv(output)
