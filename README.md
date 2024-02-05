@@ -22,8 +22,9 @@ Once the production run has completed, you will need to run the analysis. The re
 
 process_trajectories.py is the example script used to run the analysis on one or several systems; here, showing the exact commands used to process the systems from the publication. It is recommended to remove water from the .gro and trajectory files.
 
-## Figures
 Figures/ contains various renders of each system, as well as the tcl scripts used to generate these in vmd.
+
+example_results/ contains output files for all of the systems studied in the book chapter.
 
 ---
 # TUTORIAL
@@ -34,7 +35,7 @@ If you end up using this tutorial, you should cite our book chapter (coming soon
 You will need: 
 - Access to a terminal
 - This repository; run ```git clone --recurse-submodules https://github.com/MoMS-MMSB/lipid_sorting.git``` in a terminal. We call recurse-submodules as this project uses another repository we developed based on [TS2CG](https://github.com/marrink-lab/TS2CG1.1) to help with the initial tubule setup.
-- A conda environment for this repository. This gives you access to the in-house scripts generated for setup and analysis, and all their required python package dependencies. Notably, this includes Nextflow, the software used to run the workflow for initial structure generation. This is done by running ```conda env create --name lipid-sorting --file=environments.yml```
+- A conda environment for this repository. This gives you access to the in-house scripts generated for setup and analysis, and all their required python package dependencies. Notably, this includes Nextflow, the software used to run the workflow for initial structure generation. This is done by running ```conda env create --name lipid-sorting --file=environment.yml```
 - A working GROMACS install. This entire process was developed using GROMACS/2023.1, the installation instructions for which can be found [here](https://manual.gromacs.org/documentation/2023.1/install-guide/index.html)
 
 Once you've cloned the repository and created the environment, we can begin. Activate the conda environment:
