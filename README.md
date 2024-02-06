@@ -36,6 +36,7 @@ You will need:
 - Access to a terminal
 - This repository; run ```git clone --recurse-submodules https://github.com/MoMS-MMSB/lipid_sorting.git``` in a terminal. We call recurse-submodules as this project uses another repository we developed based on [TS2CG](https://github.com/marrink-lab/TS2CG1.1) to help with the initial tubule setup.
 - A conda environment for this repository. This gives you access to the in-house scripts generated for setup and analysis, and all their required python package dependencies. Notably, this includes Nextflow, the software used to run the workflow for initial structure generation. This is done by running ```conda env create --name lipid-sorting --file=environment.yml```
+- [TS2CG](https://github.com/marrink-lab/TS2CG1.1). Clone the repository (`git clone https://github.com/marrink-lab/TS2CG1.1.git`)into this tutorial folder, then cd into it and run ./compile.sh. Once that has finished, move the **PCG** program into the folder TS2CG-Setup-Pipeline/
 - A working GROMACS install. This entire process was developed using GROMACS/2023.1, the installation instructions for which can be found [here](https://manual.gromacs.org/documentation/2023.1/install-guide/index.html)
 
 Once you've cloned the repository and created the environment, we can begin. Activate the conda environment:
