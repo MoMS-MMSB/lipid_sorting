@@ -44,10 +44,12 @@ Once you've cloned the repository and created the environment, we can begin. Act
  conda activate lipid-sorting
  ```
 
+You can also run all of this by running `bash setup_env.sh` after cloning the environment.
+
 ## 1. Initial setup with TS2CG pipeline
 Create a new folder, and enter. For this tutorial, we will call this folder 1.initial/
 
-Create a file called generate.str, which will contain all the important information the creation of your tubule.
+Create a file called `generate.str`, which will contain all the important information the creation of your tubule.
 
 Here's an example I used to create the simple POPC/POPE lipid mixtures with a radius of 10nm and length of 10nm, specified in the book chapter as the system with reduced cost. We will use this system for the sake of the tutorial, as it is probably the easiest to run on most machines, and yields results the "fastest"
 
