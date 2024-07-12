@@ -80,7 +80,7 @@ def distance_between_vectors(vector1, vector2):
     calculate distance between points for two numpy arrays
     """
 def total_lipids_per_leaflet(universe, axis="z"):
-    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL CHOL TUBE")))
+    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL ION CHOL TO DO TUBE")))
     center = non_water_COG(universe)
     if axis == "x":
         tubule_center = [center[1], center[2]]
@@ -182,7 +182,7 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
 
     universe.universe.trajectory[frame_index]
 
-    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL CHOL TUBE")))
+    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL ION CHOL TO DO TUBE")))
 
     center = non_water_COG(universe)
 
@@ -263,14 +263,14 @@ def process_trajectory_parallel(universe,  output="dataframe.csv", axis = "z"):
     Perform inner/outer tubule analysis on entire trajectory, given here
     as MDAnalysis universe. Saves as a csv named by variable 'output'
     """
-    resnames = residue_names(universe.select_atoms("not resname W CHOL TUBE"))
+    resnames = residue_names(universe.select_atoms("not resname W CHOL ION DO TO TUBE"))
     print(resnames)
 
     run_per_frame = partial(lipids_per_tubule_leaflet_parallel, universe=universe, axis=axis)
 
     frame_values = np.arange(universe.trajectory.n_frames)
 
-    with Pool(25) as worker_pool:
+    with Pool(20) as worker_pool:
         result = worker_pool.map(run_per_frame, frame_values)
 
     df = results_to_df(result, resnames)
@@ -523,3 +523,21 @@ def calc_force_edr(edr, axis="z", output="energy.csv", verbose=False):
                             "Force (N)":force})        
 
     df.to_csv(output)
+
+def sorting_efficiency(csv, lipids, total_lipids = 1, output=False):
+    df_in = pd.read_csv(csv)
+    df_in = df_in.set_index(df_in.columns[0])
+    deltas = []
+    for lipid in lipids:
+        delta = df_in[lipid + " Outer"] - df_in[lipid + " Inner"]
+        deltas.append(delta)
+
+    deltas = np.array(deltas).T
+    sorting_efficiency = (deltas[:,0] - deltas[:,1])/total_lipids
+    results_array = np.column_stack((deltas, sorting_efficiency))
+    headers = lipids + ["Sorting Efficiency"]
+    df_out = pd.DataFrame(results_array, columns=headers)
+    df_out["Sorting Efficiency"].plot()
+    if output:
+        df_out.to_csv(output)
+    return(df_out)
