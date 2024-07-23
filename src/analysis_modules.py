@@ -260,11 +260,14 @@ def process_trajectory(trajectory, skip=1, output="dataframe.csv", axis = "z"):
     df = results_to_df(trajectory_output, resnames)
     df.to_csv(output)
 
-def process_trajectory_parallel(universe,  output="dataframe.csv", axis = "z"):
+def process_trajectory_parallel(universe,  output="dataframe.csv", ncores=4, axis = "z"):
     """
     Perform inner/outer tubule analysis on entire trajectory, given here
     as MDAnalysis universe. Saves as a csv named by variable 'output'
     """
+    assert ncores > 1
+    assert isinstance(ncores, int)
+    
     resnames = residue_names(universe.select_atoms("not resname W ION DO TO TUBE"))
     print(resnames)
 
@@ -272,7 +275,7 @@ def process_trajectory_parallel(universe,  output="dataframe.csv", axis = "z"):
 
     frame_values = np.arange(universe.trajectory.n_frames)
 
-    with Pool(20) as worker_pool:
+    with Pool(ncores) as worker_pool:
         result = worker_pool.map(run_per_frame, frame_values)
 
     df = results_to_df(result, resnames)
