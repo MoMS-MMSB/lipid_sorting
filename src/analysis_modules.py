@@ -53,20 +53,24 @@ def martini_lipid_tails(universe, list_of_residues):
         for r in universe.residues:
             if str(r.resname) == residue:
                 residue_first_last_atoms.append(([r.atoms[0].name])) # head
-                tail_dic = {} 
-                for atom in r.atoms[:]:
-                    last_char = atom.name[-1]
-                    if (last_char == "A") or (last_char == "B"): #replace with is srtring
-                        if last_char not in tail_dic:
-                             tail_dic[last_char] = []
-                        tail_dic[last_char].append(atom.name)
-                tail_first_last = []
-                for tail in tail_dic:
-                    tail_first_last.append(tail_dic[tail][-1])    
-                residue_first_last_atoms.append(tail_first_last)
+                if residue == "CHOL": # this could be handled smarter, as "if not lipid" somehow
+                    residue_first_last_atoms.append(([r.atoms[-1].name]))
+                else:
+                    tail_dic = {} 
+                    for atom in r.atoms[:]:
+                        last_char = atom.name[-1]
+                        if (last_char == "A") or (last_char == "B"): #replace with is srtring
+                            if last_char not in tail_dic:
+                                tail_dic[last_char] = []
+                            tail_dic[last_char].append(atom.name)
+                    tail_first_last = []
+                    for tail in tail_dic:
+                        tail_first_last.append(tail_dic[tail][-1])    
+                    residue_first_last_atoms.append(tail_first_last)
                 break
         # print(residue_first_last_atoms)
         residue_atom_dict[residue] = residue_first_last_atoms
+        print(residue_first_last_atoms)
     return(residue_atom_dict)  
 
 def distance_between_points(point1, point2):
@@ -80,7 +84,7 @@ def distance_between_vectors(vector1, vector2):
     calculate distance between points for two numpy arrays
     """
 def total_lipids_per_leaflet(universe, axis="z"):
-    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL ION CHOL TO DO TUBE")))
+    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL ION TO DO TUBE")))
     center = non_water_COG(universe)
     if axis == "x":
         tubule_center = [center[1], center[2]]
@@ -143,14 +147,12 @@ def lipids_per_tubule_leaflet(universe, axis="z", residue_atom_dict=False, cente
         dims = [0,1]
     
     overall_totals = []
-
     for resname in residue_atom_dict:
         heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}')
 
         tails = []
         for tail_name in residue_atom_dict[resname][1]:
             tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}'))
-
         outer_total = 0
         inner_total = 0
 
@@ -173,7 +175,7 @@ def lipids_per_tubule_leaflet(universe, axis="z", residue_atom_dict=False, cente
         overall_totals.append(inner_total)
     return(overall_totals)
 
-def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
+def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z", cutoff=5):
     """
     From an MDAnalysis universe and a dictionary containing residue names with their first and 
     last atoms, assign each residue (i.e. lipid) to either the inner or outer tubule leaflet,
@@ -182,7 +184,7 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
 
     universe.universe.trajectory[frame_index]
 
-    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL ION CHOL TO DO TUBE")))
+    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL ION TO DO TUBE")))
 
     center = non_water_COG(universe)
 
@@ -201,29 +203,30 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z"):
     
     overall_totals = []
 
-
     for resname in residue_atom_dict:
         heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}')
         tails = []
         for tail_name in residue_atom_dict[resname][1]:
             tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}'))
-
         outer_total = 0
         inner_total = 0
 
         for i in range(len(heads)):
             head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
-            tailA = tails[0][i]   
-            tailB = tails[1][i]
-            average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
-            average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
-            tail_coords = [average_first_dim, average_second_dim]
+            if resname == "CHOL":
+                tail_coords = [tails[0].positions[i][dims[0]], tails[0].positions[i][dims[1]]]
+            else: # two-tailed lipids
+                tailA = tails[0][i]   
+                tailB = tails[1][i]
+                average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
+                average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
+                tail_coords = [average_first_dim, average_second_dim]
 
             head_dist = (distance_between_points(head_coords, tubule_center))
             tail_dist = (distance_between_points(tail_coords, tubule_center))
-            if head_dist > tail_dist+5:
+            if head_dist > tail_dist+cutoff:
                 outer_total += 1
-            elif tail_dist > head_dist+5:
+            elif tail_dist > head_dist+cutoff:
                 inner_total += 1
         overall_totals.append(outer_total)
         overall_totals.append(inner_total)
@@ -263,7 +266,7 @@ def process_trajectory_parallel(universe,  output="dataframe.csv", axis = "z"):
     Perform inner/outer tubule analysis on entire trajectory, given here
     as MDAnalysis universe. Saves as a csv named by variable 'output'
     """
-    resnames = residue_names(universe.select_atoms("not resname W CHOL ION DO TO TUBE"))
+    resnames = residue_names(universe.select_atoms("not resname W ION DO TO TUBE"))
     print(resnames)
 
     run_per_frame = partial(lipids_per_tubule_leaflet_parallel, universe=universe, axis=axis)
@@ -475,6 +478,54 @@ def calc_radius_parallel(frame_index, universe, axis="z"):
 
 def run_radius_parallel(universe, axis="z"):
     run_per_frame = partial(calc_radius_parallel, universe=universe, axis=axis)
+
+    frame_values = np.arange(universe.trajectory.n_frames)
+
+    with Pool(25) as worker_pool:
+        result = worker_pool.map(run_per_frame, frame_values)
+    return(result)
+
+
+def calc_radius_slices_parallel(frame_index, universe, axis="z"):
+    universe.universe.trajectory[frame_index]
+
+    center = non_water_COG(universe)
+
+    assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
+
+    if axis == "x":
+        axis_idx = 0
+        tubule_center = [center[1], center[2]]
+        dims = [1,2]
+    elif axis == "y":
+        axis_idx = 1
+        tubule_center = [center[0], center[2]]
+        dims = [0,2]
+    elif axis == "z":
+        axis_idx = 2
+        tubule_center = [center[0], center[1]]
+        dims = [0,1]
+    radii_slices = []
+    for i in range(10): #10 being default number of slices:
+        # get max length in tubule dir
+        tube_length = universe.dimensions[axis_idx]
+        slice_min = tube_length*(i/10)
+        slice_max = tube_length*(i/10) + tube_length/10
+        bead_dim1 = universe.select_atoms(f"name PO4 and prop {axis} > {slice_min} and prop {axis} < {slice_max}").positions[:, dims[0]]
+        bead_dim2 = universe.select_atoms(f"name PO4 and prop {axis} > {slice_min} and prop {axis} < {slice_max}").positions[:, dims[1]]
+        beads_points = np.square(np.abs(bead_dim2 - bead_dim1))
+        center_points = abs(tubule_center[1] - tubule_center[0])**2
+        radii = np.sqrt(beads_points + center_points)
+        radii_slices.append(np.average(radii))
+    avg_slices = np.average(radii_slices)
+    std_slices = np.std(radii_slices)
+    radii_slices.append(avg_slices)
+    radii_slices.append(std_slices)
+    return radii_slices
+
+
+def run_radius_slices_parallel(universe, axis="z"):
+    run_per_frame = partial(calc_radius_slices_parallel, universe=universe, axis=axis)
 
     frame_values = np.arange(universe.trajectory.n_frames)
 
