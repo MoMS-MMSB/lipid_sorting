@@ -74,105 +74,10 @@ def martini_lipid_tails(universe, list_of_residues):
 
 def distance_between_points(point1, point2):
     """Calculate the distance between two two-dimensional points"""
-    assert (type(point1) == list) and (len(point1) == 2)
-    assert (type(point2) == list) and (len(point2) == 2)
-    return (np.sqrt(((point1[1]-point1[0])**2) + ((point2[1] - point2[0])**2)))
+    # assert (type(point1) == list) and (len(point1) == 2)
+    # assert (type(point2) == list) and (len(point2) == 2)
+    return (np.sqrt(((point2[0]-point1[0])**2) + ((point2[1] - point1[1])**2)))
 
-def distance_between_vectors(vector1, vector2):
-    """
-    calculate distance between points for two numpy arrays
-    """
-def total_lipids_per_leaflet(universe, axis="z"):
-    residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL ION TO DO TUBE")))
-    center = non_water_COG(universe)
-    if axis == "x":
-        tubule_center = [center[1], center[2]]
-        delete_column = [0]
-    elif axis == "y":
-        tubule_center = [center[0], center[2]]
-        delete_column = [1]
-    elif axis == "z":
-        tubule_center = np.array([center[0], center[1]])
-        delete_column = [2]
-
-    for resname in residue_atom_dict:
-        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}').positions
-        print(heads)
-        heads = np.delete(heads, delete_column, 1)
-        print(heads)
-        print(tubule_center)
-        print("center-heads...")
-        print(np.abs(tubule_center-heads))
-        print("center-heads**2...")
-        print(np.abs(tubule_center-heads)**2)
-        print("sum(center-heads**2)...")
-        print((np.sum(np.abs(tubule_center-heads)**2, axis=1)))
-        # print("sqrt(sum(center-heads**2)...)")
-        # print(np.sqrt(np.sum(np.abs(tubule_center-heads)**2, axis=1)))
-        # tails = np.zeros(heads.shape)
-        # print(tails)
-        # for tail_name in residue_atom_dict[resname][1]:
-        #     u_tail = universe.select_atoms(f'resname {resname} and name {tail_name}')
-        #     print(u_tail.positions)
-        #     tails = tails +  u_tail.positions
-        # tails = tails/len(residue_atom_dict[resname][1])
-        # print(tails)
-
-
-def lipids_per_tubule_leaflet(universe, axis="z", residue_atom_dict=False, center=False):
-    """
-    From an MDAnalysis universe and a dictionary containing residue names with their first and 
-    last atoms, assign each residue (i.e. lipid) to either the inner or outer tubule leaflet,
-    where the tubule is periodic in the dimension specified by variable 'axis'
-    """
-
-    if residue_atom_dict == False:
-        residue_atom_dict = martini_lipid_tails(universe, residue_names(universe.select_atoms("not resname W NA CA CL")))
-    
-    if center == False:
-        center = non_water_COG(universe)
-
-    assert axis in ["x", "y", "z"], "axis is not one of 'x', 'y', or 'z'"
-    # assert all(isinstance(key, str) and isinstance(value, list) and len(value) == 2 and all(isinstance(item, str) for item in value) for key, value in residue_atom_dict.items()), "Invalid dictionary format"
-
-    if axis == "x":
-        tubule_center = [center[1], center[2]]
-        dims = [1,2]
-    elif axis == "y":
-        tubule_center = [center[0], center[2]]
-        dims = [0,2]
-    elif axis == "z":
-        tubule_center = [center[0], center[1]]
-        dims = [0,1]
-    
-    overall_totals = []
-    for resname in residue_atom_dict:
-        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}')
-
-        tails = []
-        for tail_name in residue_atom_dict[resname][1]:
-            tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}'))
-        outer_total = 0
-        inner_total = 0
-
-        for i in range(len(heads)):
-            head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
-            
-            tailA = tails[0][i]   
-            tailB = tails[1][i]
-            average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
-            average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
-            tail_coords = [average_first_dim, average_second_dim]
-
-            head_dist = (distance_between_points(head_coords, tubule_center))
-            tail_dist = (distance_between_points(tail_coords, tubule_center))
-            if head_dist > tail_dist:
-                outer_total += 1
-            else:
-                inner_total += 1
-        overall_totals.append(outer_total)
-        overall_totals.append(inner_total)
-    return(overall_totals)
 
 def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z", cutoff=5):
     """
@@ -203,30 +108,47 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z", cutoff=5
     overall_totals = []
 
     for resname in residue_atom_dict:
-        heads = universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}')
+        heads = np.array(universe.select_atoms(f'resname {resname} and name {residue_atom_dict[resname][0][0]}').positions[:])
         tails = []
         for tail_name in residue_atom_dict[resname][1]:
-            tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}'))
+            tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}').positions[:])
+        tails = np.mean(tails, axis=0)
         outer_total = 0
         inner_total = 0
+        # print(resname, np.shape(heads), np.shape(tails))
+        head_coords = [heads[:, dims[0]], heads[:, dims[1]]]
+        tail_coords = [tails[:, dims[0]], tails[:, dims[1]]]
 
-        for i in range(len(heads)):
-            head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
-            if resname == "CHOL":
-                tail_coords = [tails[0].positions[i][dims[0]], tails[0].positions[i][dims[1]]]
-            else: # two-tailed lipids
-                tailA = tails[0][i]   
-                tailB = tails[1][i]
-                average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
-                average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
-                tail_coords = [average_first_dim, average_second_dim]
 
-            head_dist = (distance_between_points(head_coords, tubule_center))
-            tail_dist = (distance_between_points(tail_coords, tubule_center))
-            if head_dist > tail_dist+cutoff:
-                outer_total += 1
-            elif tail_dist > head_dist+cutoff:
-                inner_total += 1
+        center_array = np.array([[tubule_center[0]] * len(heads), [tubule_center[1]] * len(heads)])
+
+        head_dists = distance_between_points(head_coords, center_array)
+        tail_dists = distance_between_points(tail_coords, center_array)
+
+        outer_total = np.sum(head_dists > tail_dists + cutoff)
+        inner_total = np.sum(tail_dists > head_dists + cutoff)
+        # print(np.sum(outer_total))
+        # print(center_array)
+        # print(distance_between_points(head_coords, center_array))
+        # print([heads[:][dims[0]]])
+
+        # for i in range(len(heads)):
+        #     head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
+        #     if resname == "CHOL":
+        #         tail_coords = [tails[0].positions[i][dims[0]], tails[0].positions[i][dims[1]]]
+        #     else: # two-tailed lipids
+        #         tailA = tails[0][i]   
+        #         tailB = tails[1][i]
+        #         average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
+        #         average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
+        #         tail_coords = [average_first_dim, average_second_dim]
+
+        #     head_dist = (distance_between_points(head_coords, tubule_center))
+        #     tail_dist = (distance_between_points(tail_coords, tubule_center))
+        #     if head_dist > tail_dist+cutoff:
+        #         outer_total += 1
+        #     elif tail_dist > head_dist+cutoff:
+        #         inner_total += 1
         overall_totals.append(outer_total)
         overall_totals.append(inner_total)
     return(overall_totals)
