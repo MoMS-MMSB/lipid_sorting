@@ -12,7 +12,7 @@ By creating a simple tubular membrane, we create a region of *positive curvature
 
 This project utilises the Martini 3 coarse-grained forcefield, the TS2CG software to set up membranes, and the GROMACS molecular dynamics software package to do create these tubules, from scratch, run them, and perform analysis of the lipid sorting.
 
-**NOTE:** Since the publication of the [book chapter](), I found a pretty nasty bug in the code which made the outputs show a lot more fluctuations than they should. Fixed now!
+**NOTE:** Since the publication of the [book chapter](10.1016/bs.mie.2024.03.022), I found a pretty nasty mistake in the code which made the outputs show a lot more fluctuations than they should. Fixed now!
 
 ## What is in this Repository?
 The pipeline to set up tubules is based on TS2CG. Contained in this repository
