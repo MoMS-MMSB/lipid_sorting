@@ -6,7 +6,11 @@
 
 
 ## Introduction
-Coming soon! Once this gets published, I can write more here :)
+Lipids sort according to their intrinsic curvature, essentially the individual geometric shape of a given lipid species. By doing so, they give rise to the complex membrane shapes which faciliate countless important functions. 
+
+By creating a simple tubular membrane, we create a region of *positive curvature* (the outer leaflet), and *negative curvature* (the inner leaflet). By placing pores inside the tubule, we allow the lipids to flip-flop, and as the simulation progresses we can see how lipids will tend to prefer one of these two regions (or neither!) in accordance with their intrinsic curvature.
+
+This project utilises the Martini 3 coarse-grained forcefield, the TS2CG software to set up membranes, and the GROMACS molecular dynamics software package to do create these tubules, from scratch, run them, and perform analysis of the lipid sorting.
 
 ## What is in this Repository?
 The pipeline to set up tubules is based on TS2CG. Contained in this repository

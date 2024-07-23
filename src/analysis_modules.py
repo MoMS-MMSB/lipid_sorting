@@ -70,7 +70,6 @@ def martini_lipid_tails(universe, list_of_residues):
                 break
         # print(residue_first_last_atoms)
         residue_atom_dict[residue] = residue_first_last_atoms
-        print(residue_first_last_atoms)
     return(residue_atom_dict)  
 
 def distance_between_points(point1, point2):
