@@ -113,12 +113,9 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z", cutoff=5
         for tail_name in residue_atom_dict[resname][1]:
             tails.append(universe.select_atoms(f'resname {resname} and name {tail_name}').positions[:])
         tails = np.mean(tails, axis=0)
-        outer_total = 0
-        inner_total = 0
-        # print(resname, np.shape(heads), np.shape(tails))
+
         head_coords = [heads[:, dims[0]], heads[:, dims[1]]]
         tail_coords = [tails[:, dims[0]], tails[:, dims[1]]]
-
 
         center_array = np.array([[tubule_center[0]] * len(heads), [tubule_center[1]] * len(heads)])
 
@@ -127,28 +124,7 @@ def lipids_per_tubule_leaflet_parallel(frame_index, universe, axis="z", cutoff=5
 
         outer_total = np.sum(head_dists > tail_dists + cutoff)
         inner_total = np.sum(tail_dists > head_dists + cutoff)
-        # print(np.sum(outer_total))
-        # print(center_array)
-        # print(distance_between_points(head_coords, center_array))
-        # print([heads[:][dims[0]]])
 
-        # for i in range(len(heads)):
-        #     head_coords = [heads.positions[i][dims[0]], heads.positions[i][dims[1]]]
-        #     if resname == "CHOL":
-        #         tail_coords = [tails[0].positions[i][dims[0]], tails[0].positions[i][dims[1]]]
-        #     else: # two-tailed lipids
-        #         tailA = tails[0][i]   
-        #         tailB = tails[1][i]
-        #         average_first_dim = (tailA.position[dims[0]] + tailB.position[dims[0]]) / 2
-        #         average_second_dim = (tailA.position[dims[1]] + tailB.position[dims[1]]) / 2
-        #         tail_coords = [average_first_dim, average_second_dim]
-
-        #     head_dist = (distance_between_points(head_coords, tubule_center))
-        #     tail_dist = (distance_between_points(tail_coords, tubule_center))
-        #     if head_dist > tail_dist+cutoff:
-        #         outer_total += 1
-        #     elif tail_dist > head_dist+cutoff:
-        #         inner_total += 1
         overall_totals.append(outer_total)
         overall_totals.append(inner_total)
     return(overall_totals)
@@ -165,22 +141,6 @@ def results_to_df(array, resnames):
     df = pd.DataFrame(array,columns=headers)
     df.index += 1
     return(df)
-
-def process_trajectory(trajectory, skip=1, output="dataframe.csv", axis = "z"):
-    """
-    Perform inner/outer tubule analysis on entire trajectory, given here
-    as MDAnalysis universe. Saves as a csv named by variable 'output'
-    """
-    resnames = residue_names(trajectory.select_atoms("not resname W"))
-
-    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
-    trajectory_output = []
-
-    for ts in trajectory.trajectory[::skip]:
-        trajectory_output.append(lipids_per_tubule_leaflet(sel, axis))
-    
-    df = results_to_df(trajectory_output, resnames)
-    df.to_csv(output)
 
 def process_trajectory_parallel(universe,  output="dataframe.csv", ncores=4, axis = "z"):
     """
@@ -228,50 +188,6 @@ def df_to_plot(df, resnames, rolling=1, bg=False, title=False, colours=False, x_
         plt.title(title)
 
     return(plt)
-
-def trajectory_to_plot(trajectory, axis="z", colours=False, skip=1):
-    """
-    Perform several of the above steps all in one, all from a single trajectory.
-    Not recommended for huge trajectories, as the files are not saved.
-    """
-    resnames = residue_names(trajectory.select_atoms("not resname W"))
-
-    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
-    trajectory_output = []
-
-    for ts in tqdm(trajectory.trajectory[::skip]):
-        trajectory_output.append(lipids_per_tubule_leaflet(sel, axis))
-    
-    df = results_to_df(trajectory_output, resnames)
-
-    if colours:
-        df_to_plot(df, resnames, colours)
-    else:
-        df_to_plot(df, resnames)
-
-    plt.show()
-
-def trajectory_to_plot_jupyter(trajectory, rolling=1, title=False, colours=False, skip=1):
-    """
-    Does the same as above, but in jupyter.
-    Not recommended for huge trajectories, as the files are not saved.
-    """
-
-    resnames = residue_names(trajectory.select_atoms("not resname W"))
-
-    sel = trajectory.atoms.select_atoms("not resname W", updating = True)
-    trajectory_output = []
-
-    with tqdm(total=len(trajectory.trajectory[::skip])) as pbar:
-        for ts in trajectory.trajectory[::skip]:
-            trajectory_output.append(lipids_per_tubule_leaflet(sel))
-            pbar.update(1)
-    
-    df = results_to_df(trajectory_output, resnames)
-
-    df_to_plot(df, resnames, rolling, title, colours)
-
-    plt.show()
 
 def csv_to_plot(csv, resnames, rolling=1, bg=False, title=False, colours=False, index_scaling=1, x_label="Frame", out=False):
     """
